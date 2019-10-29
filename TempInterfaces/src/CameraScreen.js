@@ -34,8 +34,8 @@ class CameraScreen extends PureComponent {
     };
 
     tflite.loadModel({
-      model: 'mobilenet_v1_1.0_224_quant.tflite',// required
-      labels: 'labels_mobilenet_quant_v1_224.txt',  // required
+      model: 'ssd_mobilenet.tflite',// required
+      labels: 'ssd_mobilenet.txt',  // required
       numThreads: 1,                              // defaults to 1  
     },
     (err, res) => {
