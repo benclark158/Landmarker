@@ -9,15 +9,17 @@
 import React from 'react';
 
 import CameraScreen from './src/CameraScreen';
-
+import TensorScreen from './src/TensorScreen'
 import MainScreen from './src/MainScreen';
 
 import {createAppContainer} from 'react-navigation';
 import {createStackNavigator} from 'react-navigation-stack';
 
 const MainNavigator = createStackNavigator({
+  //Home: {screen: TensorScreen},
   Home: {screen: CameraScreen},
   InfoScreen: {screen: MainScreen},
+  //CameraScreen: {screen: TensorScreen}
 });
 
 const App = createAppContainer(MainNavigator);

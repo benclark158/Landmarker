@@ -2,6 +2,10 @@
 import React, { PureComponent } from 'react';
 import { AppRegistry, StyleSheet, Text, TouchableOpacity, View, Image } from 'react-native';
 import { RNCamera } from 'react-native-camera';
+import Tflite from 'tflite-react-native';
+import ImageResizer from 'react-native-image-resizer';
+
+let tflite = new Tflite();
 
 class CameraScreen extends PureComponent {
   static navigationOptions = {
@@ -17,16 +21,43 @@ class CameraScreen extends PureComponent {
 
     this.state = {
       camera: {      
-        type: RNCamera.Constants.Type.front,
-        flashMode: RNCamera.Constants.FlashMode.on
+        type: RNCamera.Constants.Type.back,
+        flashMode: RNCamera.Constants.FlashMode.off
+      },
+      items: {
+        item1: "item 1!",
+        item2: "item 2!",
+        item3: "item 3!",
+        item4: "item 4!",
+        item5: "item 5!",
       }
     };
+
+    tflite.loadModel({
+      model: 'mobilenet_v1_1.0_224_quant.tflite',// required
+      labels: 'labels_mobilenet_quant_v1_224.txt',  // required
+      numThreads: 1,                              // defaults to 1  
+    },
+    (err, res) => {
+      if(err)
+        console.log(err);
+      else
+        console.log(res);
+    });
   }
 
   render() {
     const {navigate} = this.props.navigation;
     return (
       <View style={styles.container}>
+        <View>
+          <Text>{ this.state.items.item1 }</Text>
+          <Text>{ this.state.items.item2 }</Text>
+          <Text>{ this.state.items.item3 }</Text>
+          <Text>{ this.state.items.item4 }</Text>
+          <Text>{ this.state.items.item5 }</Text>
+        </View>
+
         <RNCamera
           ref={ref => {
             this.camera = ref;
@@ -35,7 +66,9 @@ class CameraScreen extends PureComponent {
           type={this.state.camera.type}
           flashMode={this.state.camera.flashMode}
           captureAudio={false}
+          ratio="1:1"
         />
+        
         <View style={styles.buttonContainer}>
           <View style={styles.sideBContainer}>
             <TouchableOpacity style={styles.utilButton} onPress={this.rotateCamera.bind(this)}>
@@ -72,14 +105,12 @@ class CameraScreen extends PureComponent {
       this.setState({
         camera: {      
           type: RNCamera.Constants.Type.back,
-          flashMode: RNCamera.Constants.FlashMode.on
         }
       });
     } else {
       this.setState({
         camera: {      
           type: RNCamera.Constants.Type.front,
-          flashMode: RNCamera.Constants.FlashMode.on
         }
       });
     }
@@ -87,9 +118,56 @@ class CameraScreen extends PureComponent {
 
   takePicture = async() => {
     if (this.camera) {
-      const options = { quality: 0.5, base64: true };
-      const data = await this.camera.takePictureAsync(options);
-      console.log(data.uri);
+      var options = { quality: 1, base64: true, width: 224, height: 224 };
+      var data = await this.camera.takePictureAsync(options);
+
+      var imagePathBig = data.uri;
+      var imagePath = data.uri;
+      
+      console.log(imagePathBig);
+      console.log(imagePath);
+
+      
+      /*ImageResizer.createResizedImage(imagePathBig, 224, 224, 'JPEG', 10, 0, "data/user/0/com.tempinterfaces/cache/Camera/smaller").then((response) => {
+        // response.uri is the URI of the new image that can now be displayed, uploaded...
+        // response.path is the path of the new image
+        // response.name is the name of the new image with the extension
+        // response.size is the size of the new image
+        console.log('test :-' + response.uri);
+      }).catch((err) => {
+        // Oops, something went wrong. Check that the filename is correct and
+        // inspect err to get more details.
+        console.error(err);
+      });*/
+
+      var result = await tflite.runModelOnImage({
+        path: imagePath,
+        imageMean: 0,
+        imageStd: 0,
+        threshold: 0.3,       // defaults to 0.1
+        numResultsPerClass: 1,// defaults to 5
+      },
+        (err, res) => {
+          if(err)
+            console.log(err);
+          else {
+            console.log(res);
+
+            var jRes = res;
+
+            this.setState({
+              items: {
+                item1: jRes[0].detectedClass + ": " + jRes[0].confidenceInClass,
+                //item2: jRes[1].detectedClass + ": " + jRes[1].confidenceInClass,
+                //item3: jRes[2].detectedClass + ": " + jRes[2].confidenceInClass,
+                //item4: jRes[3].detectedClass + ": " + jRes[3].confidenceInClass,
+                //item5: jRes[4].detectedClass + ": " + jRes[4].confidenceInClass
+              }
+            });
+          }
+        }
+      );
+      //console.log(result);
     }
   };
 }
@@ -98,7 +176,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     flexDirection: 'column',
-    backgroundColor: 'black',
+    backgroundColor: 'white',
   },
   preview: {
     flex: 1,

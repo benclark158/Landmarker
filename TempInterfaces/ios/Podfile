@@ -36,6 +36,10 @@ target 'TempInterfaces' do
 
   pod 'react-native-camera', :path => '../node_modules/react-native-camera'
 
+  pod 'TfliteReactNative', :path => '../node_modules/tflite-react-native'
+
+  pod 'react-native-image-resizer', :path => '../node_modules/react-native-image-resizer'
+
   target 'TempInterfacesTests' do
     inherit! :search_paths
     # Pods for testing
