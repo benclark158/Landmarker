@@ -3,7 +3,6 @@ import React, { PureComponent } from 'react';
 import { AppRegistry, StyleSheet, Text, TouchableOpacity, View, Image } from 'react-native';
 import { RNCamera } from 'react-native-camera';
 import Tflite from 'tflite-react-native';
-import ImageResizer from 'react-native-image-resizer';
 
 let tflite = new Tflite();
 
@@ -34,8 +33,8 @@ class CameraScreen extends PureComponent {
     };
 
     tflite.loadModel({
-      model: 'ssd_mobilenet.tflite',// required
-      labels: 'ssd_mobilenet.txt',  // required
+      model: 'ts_model.tflite',// required
+      labels: 'ts_model.txt',  // required
       numThreads: 1,                              // defaults to 1  
     },
     (err, res) => {
@@ -50,15 +49,7 @@ class CameraScreen extends PureComponent {
     const {navigate} = this.props.navigation;
     return (
       <View style={styles.container}>
-        <View>
-          <Text>{ this.state.items.item1 }</Text>
-          <Text>{ this.state.items.item2 }</Text>
-          <Text>{ this.state.items.item3 }</Text>
-          <Text>{ this.state.items.item4 }</Text>
-          <Text>{ this.state.items.item5 }</Text>
-        </View>
-
-        <RNCamera
+      <RNCamera
           ref={ref => {
             this.camera = ref;
           }}
@@ -118,7 +109,7 @@ class CameraScreen extends PureComponent {
 
   takePicture = async() => {
     if (this.camera) {
-      var options = { quality: 1, base64: true, width: 224, height: 224 };
+      var options = { quality: 1, base64: true, fixOrientation: true };
       var data = await this.camera.takePictureAsync(options);
 
       var imagePathBig = data.uri;
@@ -140,34 +131,42 @@ class CameraScreen extends PureComponent {
         console.error(err);
       });*/
 
-      var result = await tflite.runModelOnImage({
+      var result = "";
+      await tflite.detectObjectOnImage({
         path: imagePath,
-        imageMean: 0,
-        imageStd: 0,
-        threshold: 0.3,       // defaults to 0.1
-        numResultsPerClass: 1,// defaults to 5
+        imageMean: 127.5,
+        imageStd: 127.5,
+        threshold: 0.05,       // defaults to 0.1
+        numResultsPerClass: 5,// defaults to 5
       },
         (err, res) => {
           if(err)
             console.log(err);
           else {
             console.log(res);
-
-            var jRes = res;
-
-            this.setState({
-              items: {
-                item1: jRes[0].detectedClass + ": " + jRes[0].confidenceInClass,
-                //item2: jRes[1].detectedClass + ": " + jRes[1].confidenceInClass,
-                //item3: jRes[2].detectedClass + ": " + jRes[2].confidenceInClass,
-                //item4: jRes[3].detectedClass + ": " + jRes[3].confidenceInClass,
-                //item5: jRes[4].detectedClass + ": " + jRes[4].confidenceInClass
-              }
+            this.props.navigation.navigate('InfoScreen', {
+              imgUri: imagePath,
+              recData1: res[0].detectedClass + ": " + res[0].confidenceInClass,
+              recData2: res[1].detectedClass + ": " + res[1].confidenceInClass,
+              recData3: res[2].detectedClass + ": " + res[2].confidenceInClass,
+              recData4: res[3].detectedClass + ": " + res[3].confidenceInClass,
+              recData5: res[4].detectedClass + ": " + res[4].confidenceInClass,
             });
           }
         }
       );
-      //console.log(result);
+      
+      /*var jRes = result;
+
+      this.setState({
+        items: {
+          item1: jRes[0].detectedClass + ": " + jRes[0].confidenceInClass,
+          item2: jRes[1].detectedClass + ": " + jRes[1].confidenceInClass,
+          item3: jRes[2].detectedClass + ": " + jRes[2].confidenceInClass,
+          item4: jRes[3].detectedClass + ": " + jRes[3].confidenceInClass,
+          item5: jRes[4].detectedClass + ": " + jRes[4].confidenceInClass
+        }
+      });*/
     }
   };
 }

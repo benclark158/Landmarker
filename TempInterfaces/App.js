@@ -18,7 +18,13 @@ import {createStackNavigator} from 'react-navigation-stack';
 const MainNavigator = createStackNavigator({
   //Home: {screen: TensorScreen},
   Home: {screen: CameraScreen},
-  InfoScreen: {screen: MainScreen},
+  InfoScreen: {
+    screen: MainScreen,
+    navigationOptions: {
+      header: null,
+      imgUri: null,
+      recData: null
+     }},
   //CameraScreen: {screen: TensorScreen}
 });
 
