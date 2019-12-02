@@ -65,7 +65,7 @@ class CameraScreen extends PureComponent {
             <TouchableOpacity style={styles.utilButton} onPress={this.rotateCamera.bind(this)}>
               <Image
               style={{flex: 1}}
-              source={{uri: 'https://scontent-lht6-1.xx.fbcdn.net/v/t1.0-1/p40x40/39467330_1312329488901090_3737371444514914304_n.jpg?_nc_cat=100&_nc_oc=AQk42TwXyVXhjv0xtRvk1ZJlXNf9K1cIEOElAItmpTJJ8e5iwbmYkKhYxO7RM7-VsjM&_nc_ht=scontent-lht6-1.xx&oh=07062071816ae6b86897bd7636cdef81&oe=5E5562CC'}}
+              source={{uri: 'https://facebook.github.io/react-native/im/tiny_logo.png'}}
             />
             </TouchableOpacity>
           </View>
