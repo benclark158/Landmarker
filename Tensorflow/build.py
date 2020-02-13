@@ -91,8 +91,13 @@ def makeModel():
 
   model.add(layers.Flatten())
   model.add(layers.Dense(64, activation='relu'))
+  model.add(layers.Dense(64, activation='relu'))
+  model.add(layers.Dense(64, activation='relu'))
   model.add(layers.Dense(10, activation='softmax'))
 
+  # add relu to this section? ReLU has a weird structure
+  
+  
   model.summary()
 
   model.compile(optimizer='adam',
