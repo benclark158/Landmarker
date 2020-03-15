@@ -8,7 +8,7 @@
 
 import React from "react";
 
-import InformationView from "./InformationView.js";
+import HistoryCard from "./HistoryCard";
 
 import {
     StyleSheet,
@@ -26,37 +26,28 @@ import { ScrollView } from "react-native-gesture-handler";
         
 var isHidden = true;
 
-class CameraScreen extends React.Component {
+class HistoryScreen extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            bounceValue: new Animated.Value(500), //This is the initial position of the subview
-            buttonText: "Show Subview",
-            viewHeight: 500,
-            camera: {
-                type: RNCamera.Constants.Type.back,
-                flashMode: RNCamera.Constants.FlashMode.off
-            },
-            results: {
-                items: {
-                    item1: "item 1!",
-                    item2: "item 2!",
-                    item3: "item 3!",
-                    item4: "item 4!",
-                    item5: "item 5!"
-                },
-                finalName: "name",
-                imagePath: "imgs",
-                googleID: "test",
-                googleUrl: "https://google.com/"
-            }
+            
         };
     }
 
     render() {
+        var card = <>
+            
+        </>
+
         var screen = <>
             <ScrollView>
-
+                <HistoryCard
+                    imgUrl={"https://cdn-ep19.pressidium.com/wp-content/uploads/2018/07/Aspect-ratio-photography-ras-ul-had-beach-Oman-1.jpg"}
+                    title={"Card1"}
+                    info={"test"}
+                    td={"time and date"}
+                    gps={"gps"}>
+                </HistoryCard>
             </ScrollView>
         </>
 
@@ -69,7 +60,12 @@ const styles = StyleSheet.create({
         flex: 1,
         width: "100%",
         height: "100%",
+    },
+    title: {
+        color: 'black',
+        fontSize: 30,
+        fontWeight: 'bold'
     }
 });
 
-export default CameraScreen;
+export default HistoryScreen;

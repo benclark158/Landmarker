@@ -15,6 +15,7 @@ import {
   View,
   Text,
   StatusBar,
+  Button,
 } from 'react-native';
 
 import {
@@ -27,6 +28,7 @@ import {
 
 import CameraScreen from './src/CameraScreen';
 import SplashScreen from './src/SplashScreen';
+import HistoryScreen from './src/HistoryScreen';
 
 import { fadeOut } from 'react-navigation-transitions';
 
@@ -39,18 +41,28 @@ import {
 const MainNavigator = createStackNavigator({
     Home: {
       screen: SplashScreen,
+      navigationOptions:{
+        headerShown: false,
+    }
     },
     CameraScreen: {
       screen: CameraScreen,
       navigationOptions: {
         imgUri: null,
         recData: null,
+        headerShown: false,
       }
     },
+    HistoryScreen: {
+        screen: HistoryScreen,
+        navigationOptions:{
+            headerShown: true,
+            title: "Search History"
+        }
+    }
   },
   {
-    headerShown: false,
-    initialRouteName: 'Home',
+    initialRouteName: 'CameraScreen',
     transitionConfig: () => fadeOut(2000),
   }
 );

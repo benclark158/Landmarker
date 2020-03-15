@@ -21,6 +21,8 @@ import {
     Button
 } from "react-native";
 
+import { Icon } from 'react-native-elements'
+
 import { RNCamera } from "react-native-camera";
         
 var isHidden = true;
@@ -45,9 +47,7 @@ class CameraScreen extends React.Component {
                     item5: "item 5!"
                 },
                 finalName: "name",
-                imagePath: "imgs",
-                googleID: "test",
-                googleUrl: "https://google.com/"
+                imagePath: "imgs"
             }
         };
     }
@@ -65,9 +65,6 @@ class CameraScreen extends React.Component {
                 captureAudio={false}
             />
         </>
-
-        //this isnt working yet - idk why
-        var fillSpace = <><View style={{backgroundColor:'green', width: "100%", height: "100%"}}></View></>
 
         var screen = <>
         <View style={styles.buttonContainer}>
@@ -87,18 +84,17 @@ class CameraScreen extends React.Component {
                 <TouchableOpacity
                     onPress={this.takePicture.bind(this)}
                     style={styles.capButton}>
-                    <Image
-                        style={{ flex: 1 }}
-                        source={{
-                            uri: "https://facebook.github.io/react-native/img/tiny_logo.png"
-                        }}
-                    />
+                    <Icon
+                        name='sc-telegram'
+                        type='evilicon'
+                        color='#517fa4'
+                        />
                 </TouchableOpacity>
             </View>
             <View style={styles.sideBContainer}>
                 <TouchableOpacity
                     style={styles.utilButton}
-                    onPress={() => this.toggleSubview()}>
+                    onPress={() => this.props.navigation.navigate('HistoryScreen')}>
                     <Image
                         style={{ flex: 1 }}
                         source={{
@@ -132,13 +128,10 @@ class CameraScreen extends React.Component {
             <Image source={this.state.imagePath} />
             <InformationView />
         </Animated.View>
-    </>
-
-        if(isHidden){
-            return [camera, screen];
-        }
-
-        return [fillSpace, screen];
+        </>
+    
+        return [camera, screen];
+    
     }
 
     toggleSubview() {
@@ -155,6 +148,7 @@ class CameraScreen extends React.Component {
 
         if (isHidden) {
             toValue = size;
+            this.camera.resumePreview();
         }
 
         //This will animate the transalteY of the subview between 0 & 100 depending on its current state
@@ -169,7 +163,7 @@ class CameraScreen extends React.Component {
 
     takePicture = async () => {
         if (this.camera) {
-            var options = { quality: 1, base64: true, fixOrientation: true };
+            var options = { quality: 0.0001, base64: false, fixOrientation: true, pauseAfterCapture: true, width: 244};
             var data = await this.camera.takePictureAsync(options);
 
             var imagePathBig = data.uri;
@@ -178,7 +172,7 @@ class CameraScreen extends React.Component {
             console.log(imagePathBig);
             console.log(imagePath);
 
-            this.toggleSubview.bind(this);
+            this.toggleSubview();
 
             /*ImageResizer.createResizedImage(imagePathBig, 224, 224, 'JPEG', 10, 0, "data/user/0/com.tempinterfaces/cache/Camera/smaller").then((response) => {
                         // response.uri is the URI of the new image that can now be displayed, uploaded...
