@@ -21,7 +21,7 @@ import {
     Button
 } from "react-native";
 
-import { Icon } from 'react-native-elements'
+import Icon from 'react-native-vector-icons/Ionicons';
 
 import { RNCamera } from "react-native-camera";
         
@@ -72,11 +72,8 @@ class CameraScreen extends React.Component {
                 <TouchableOpacity
                     style={styles.utilButton}
                     onPress={this.rotateCamera.bind(this)}>
-                    <Image
-                        style={{ flex: 1 }}
-                        source={{
-                            uri: "https://facebook.github.io/react-native/im/tiny_logo.png"
-                        }}
+                    <Icon name="ios-reverse-camera" size={40} color="#aaa"
+                        style={{alignSelf: "center"}}
                     />
                 </TouchableOpacity>
             </View>
@@ -84,23 +81,17 @@ class CameraScreen extends React.Component {
                 <TouchableOpacity
                     onPress={this.takePicture.bind(this)}
                     style={styles.capButton}>
-                    <Icon
-                        name='sc-telegram'
-                        type='evilicon'
-                        color='#517fa4'
-                        />
+                    <Icon name="ios-camera" size={80} color="#ccc"
+                        style={{alignSelf: "center"}}
+                    />
                 </TouchableOpacity>
             </View>
             <View style={styles.sideBContainer}>
                 <TouchableOpacity
                     style={styles.utilButton}
                     onPress={() => this.props.navigation.navigate('MapScreen')}>
-                    <Image
-                        style={{ flex: 1 }}
-                        source={{
-                            uri:
-                                "https://facebook.github.io/react-native/img/tiny_logo.png"
-                        }}
+                    <Icon name="md-map" size={40} color="#aaa"
+                        style={{alignSelf: "center"}}
                     />
                 </TouchableOpacity>
             </View>
@@ -283,8 +274,10 @@ const styles = StyleSheet.create({
         margin: 10,
         flex: 2,
         alignSelf: "center",
+        justifyContent: "center",
+        textAlign: "center",
         borderColor: "white",
-        borderWidth: 2,
+        borderWidth: 0,
         bottom: 0
     },
     mainBContainer: {
@@ -308,7 +301,7 @@ const styles = StyleSheet.create({
         margin: 10,
         flex: 1,
         borderColor: "white",
-        borderWidth: 2,
+        borderWidth: 0,
         bottom: 0,
         right: 0
     }

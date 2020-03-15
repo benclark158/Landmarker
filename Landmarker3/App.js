@@ -66,6 +66,11 @@ const MainNavigator = createStackNavigator({
         navigationOptions: {
             headerShown: true,
             title: "",
+            headerRight: <Button
+    onPress={() => navigation.navigate('Parametres')}
+    title="Parameters"
+    color="#000"
+/>
         },
        
     }
