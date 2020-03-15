@@ -94,7 +94,7 @@ class CameraScreen extends React.Component {
             <View style={styles.sideBContainer}>
                 <TouchableOpacity
                     style={styles.utilButton}
-                    onPress={() => this.props.navigation.navigate('HistoryScreen')}>
+                    onPress={() => this.props.navigation.navigate('MapScreen')}>
                     <Image
                         style={{ flex: 1 }}
                         source={{

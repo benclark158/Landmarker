@@ -22,8 +22,9 @@ import {
 } from "react-native";
 
 import { ScrollView } from "react-native-gesture-handler";
+import MapView, { PROVIDER_GOOGLE } from "react-native-maps";
 
-class HistoryScreen extends React.Component {
+class MapScreen extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
@@ -37,15 +38,21 @@ class HistoryScreen extends React.Component {
         </>
 
         var screen = <>
-            <ScrollView>
-                <HistoryCard
-                    imgUrl={"https://cdn-ep19.pressidium.com/wp-content/uploads/2018/07/Aspect-ratio-photography-ras-ul-had-beach-Oman-1.jpg"}
-                    title={"Card1"}
-                    info={"test"}
-                    td={"time and date"}
-                    gps={"gps"}>
-                </HistoryCard>
-            </ScrollView>
+            <View style={styles.container}>
+                <MapView
+                    provider={PROVIDER_GOOGLE}
+                    style={styles.container}
+                    initialRegion={{
+                        latitude: 54.5,
+                        longitude: -4.5,
+                        latitudeDelta: 10,
+                        longitudeDelta: 15,
+
+                        //59.682309, -0.445763
+                      }}
+                
+                />
+            </View>
         </>
 
         return screen;
@@ -58,11 +65,6 @@ const styles = StyleSheet.create({
         width: "100%",
         height: "100%",
     },
-    title: {
-        color: 'black',
-        fontSize: 30,
-        fontWeight: 'bold'
-    }
 });
 
-export default HistoryScreen;
+export default MapScreen;

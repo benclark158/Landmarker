@@ -29,6 +29,7 @@ import {
 import CameraScreen from './src/CameraScreen';
 import SplashScreen from './src/SplashScreen';
 import HistoryScreen from './src/HistoryScreen';
+import MapScreen from './src/MapScreen';
 
 import { fadeOut } from 'react-navigation-transitions';
 
@@ -59,6 +60,14 @@ const MainNavigator = createStackNavigator({
             headerShown: true,
             title: "Search History"
         }
+    },
+    MapScreen: {
+        screen: MapScreen,
+        navigationOptions: {
+            headerShown: true,
+            title: "",
+        },
+       
     }
   },
   {
