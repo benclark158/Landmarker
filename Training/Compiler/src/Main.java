@@ -33,7 +33,10 @@ public class Main {
 
         Main main = new Main();
 
-        main.organiseFiles();
+        //main.organiseFiles();
+
+        ImageDownloader down = new ImageDownloader();
+        down.collectImages();
     }
 
     private void organiseFiles() {
@@ -82,7 +85,7 @@ public class Main {
             for (Thread thread : threads) {
                 thread.join();
             }
-
+/*
             List<Tuple<HashMap, List<String>>> results = new ArrayList<>(numThreads);
 
             HashMap<Integer, QuadTuple<String, Float, Float, Boolean>> map = new HashMap<>();
@@ -91,7 +94,7 @@ public class Main {
                 results.set(x, runners[x].getResult());
 
                 for(String str : results.get(x).b) {
-                    errorWriter.write(str + "\r\n");
+                    errorWriter.write(str);
                 }
 
                 HashMap partMap = results.get(x).a;
@@ -100,7 +103,7 @@ public class Main {
                     int val = Integer.parseInt(String.valueOf(landmarkID));
                     map.put(val, (QuadTuple<String, Float, Float, Boolean>) partMap.get(val));
                 }
-            }
+            }*/
 
 
 
