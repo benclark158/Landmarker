@@ -53,53 +53,60 @@ def makeModel():
   print("building\n")
   time.sleep(0.01)
 
-  model = models.Sequential()
-  model.add(layers.InputLayer((224, 224, 3)))
+  modelImg = models.Sequential()
+  modelImg.add(layers.InputLayer((224, 224, 3)))
 
   #3x3 Conv
-  model.add(layers.Conv2D(name='conv', filters=32, kernel_size=(3, 3), activation='relu', strides=(2, 2), data_format='channels_last', padding='same'))
+  modelImg.add(layers.Conv2D(name='conv', filters=32, kernel_size=(3, 3), activation='relu', strides=(2, 2), data_format='channels_last', padding='same'))
 
-  model.add(dwLayer(name='dw-1', strides=(1,1)))
-  model.add(pwLayer(name='pw-1', filters=64))
+  modelImg.add(dwLayer(name='dw-1', strides=(1,1)))
+  modelImg.add(pwLayer(name='pw-1', filters=64))
 
-  model.add(dwLayer(name='dw-2', strides=(2,2)))
-  model.add(pwLayer(name='pw-2', filters=128))
+  modelImg.add(dwLayer(name='dw-2', strides=(2,2)))
+  modelImg.add(pwLayer(name='pw-2', filters=128))
 
-  model.add(dwLayer(name='dw-3', strides=(1,1)))
-  model.add(pwLayer(name='pw-3', filters=128))
+  modelImg.add(dwLayer(name='dw-3', strides=(1,1)))
+  modelImg.add(pwLayer(name='pw-3', filters=128))
 
-  model.add(dwLayer(name='dw-4', strides=(2,2)))
-  model.add(pwLayer(name='pw-4', filters=256))
+  modelImg.add(dwLayer(name='dw-4', strides=(2,2)))
+  modelImg.add(pwLayer(name='pw-4', filters=256))
 
-  model.add(dwLayer(name='dw-5', strides=(1,1)))
-  model.add(pwLayer(name='pw-5', filters=256))
+  modelImg.add(dwLayer(name='dw-5', strides=(1,1)))
+  modelImg.add(pwLayer(name='pw-5', filters=256))
 
-  model.add(dwLayer(name='dw-6', strides=(2,2)))
-  model.add(pwLayer(name='pw-6', filters=512))
+  modelImg.add(dwLayer(name='dw-6', strides=(2,2)))
+  modelImg.add(pwLayer(name='pw-6', filters=512))
 
   for x in range(0, 4): 
-    model.add(dwLayer(name='dw-' + str(7+x), strides=(1,1)))
-    model.add(pwLayer(name='pw-' + str(7+x), filters=512))
+    modelImg.add(dwLayer(name='dw-' + str(7+x), strides=(1,1)))
+    modelImg.add(pwLayer(name='pw-' + str(7+x), filters=512))
 
-  model.add(dwLayer(name='dw-12', strides=(2,2)))
-  model.add(pwLayer(name='pw-12', filters=1024))
+  modelImg.add(dwLayer(name='dw-12', strides=(2,2)))
+  modelImg.add(pwLayer(name='pw-12', filters=1024))
 
-  model.add(dwLayer(name='dw-13', strides=(1,1)))
-  model.add(pwLayer(name='pw-13', filters=1024))
+  modelImg.add(dwLayer(name='dw-13', strides=(1,1)))
+  modelImg.add(pwLayer(name='pw-13', filters=1024))
 
-  model.add(layers.AveragePooling2D((7,7)))
+  modelImg.add(layers.AveragePooling2D((7,7)))
 
-  model.add(layers.Flatten())
-  model.add(layers.Dense(64, activation='relu'))
-  model.add(layers.Dense(64, activation='relu'))
-  model.add(layers.Dense(64, activation='relu'))
-  model.add(layers.Dense(10, activation='softmax'))
+  modelImg.add(layers.Flatten())
+
+  #inputGPS = Input(shape=(2,))
+
+
+
+  modelImg.add(layers.Dense(64, activation='relu'))
+  modelImg.add(layers.Dense(64, activation='relu'))
+  modelImg.add(layers.Dense(64, activation='relu'))
+  modelImg.add(layers.Dense(27, activation='softmax'))
 
   # add relu to this section? ReLU has a weird structure
   
   
-  model.summary()
+  modelImg.summary()
 
-  model.compile(optimizer='adam',
+  modelImg.compile(optimizer='adam',
 		loss='sparse_categorical_crossentropy',
 		metrics=['accuracy'])
+
+  return modelImg

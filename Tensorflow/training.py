@@ -1,35 +1,41 @@
 import glob
 import tensorflow as tf
-import tensorflow_datasets as tfds
+from keras.preprocessing.image import ImageDataGenerator
+from time import time
+from tensorflow.python.keras.callbacks import TensorBoard
 
-def training():
-    tf.compat.v1.enable_eager_execution()
-    
-    rps_train = tfds.load(name="rock_paper_scissors", split="train")
-    #rps_test = tfds.load(name="rock_paper_scissors", split="test")
-    #return (images, labels)
+def training(model, steps, noEpochs):
+    #train_datagen = ImageDataGenerator()
 
-    # The following is the equivalent of the `load` call above.
+    #test_datagen = ImageDataGenerator()
 
-    # You can fetch the DatasetBuilder class by string
-    mnist_builder = tfds.builder('rock_paper_scissors')
-    
-    # Download the dataset
-    mnist_builder.download_and_prepare()
+    tensorboard = TensorBoard(log_dir="logs\{}".format(time()))
 
-    # Construct a tf.data.Dataset
-    ds = mnist_builder.as_dataset(split='train')
+    train_datagen = ImageDataGenerator(shear_range = 0.2, horizontal_flip = True)
 
-    # Get the `DatasetInfo` object, which contains useful information about the
-    # dataset and its features
-    info = mnist_builder.info
-    print(info)
-    print(info.features['label'].names)
+    test_datagen = ImageDataGenerator(rescale = 1./255)
 
-    ds_train = rps_train.shuffle(1000).batch(128).prefetch(10)
+    training_set = train_datagen.flow_from_directory(
+        'E:\\Dissertation\\Landmarker\\Training\\TrainingData\\UoNDataset\\Jubilee',
+        target_size=(244, 244),
+        batch_size=12,
+        class_mode='binary'
+    )
 
-    for features in ds_train.take(1):
-        image, label = features["image"], features["label"]
-        print("1")
+    testing_set = test_datagen.flow_from_directory(
+        'E:\\Dissertation\\Landmarker\\Training\\TrainingData\\UoNDataset\\Jubilee',
+        target_size=(244, 244),
+        batch_size=12,
+        class_mode='binary'
+    )
 
-    
+    model.fit(
+        training_set,
+        steps_per_epoch=steps,
+        epochs=noEpochs,
+        validation_data=testing_set,
+        validation_steps=100,
+        callbacks=[tensorboard]
+    )
+
+    return model

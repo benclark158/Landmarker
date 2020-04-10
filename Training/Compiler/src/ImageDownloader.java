@@ -14,10 +14,10 @@ import java.util.regex.Pattern;
 
 public class ImageDownloader {
 
-    private int failedImages, downloaded;
+    private int failedImages, downloaded, skipped;
 
     public void collectImages() throws IOException {
-        File geo = new File("E:\\Training photos\\GoogleAPI Photos\\Compiler\\output.csv");
+        File geo = new File("output.csv");
         FileReader frGeo = new FileReader(geo);
         BufferedReader brGeo = new BufferedReader(frGeo);
         String line = "";
@@ -47,8 +47,9 @@ public class ImageDownloader {
 
         this.failedImages = 0;
         this.downloaded = 0;
+        this.skipped = 0;
 
-        File f = new File("E:\\Training photos\\GoogleAPI Photos\\train.csv");    //creates a new file instance
+        File f = new File("E:\\Dissertation\\Landmarker\\Training\\train.csv");    //creates a new file instance
         FileReader fr = new FileReader(f);   //reads the file
         BufferedReader br = new BufferedReader(fr);  //creates a buffering character input stream
         line = "";
@@ -63,7 +64,7 @@ public class ImageDownloader {
             } else if (i % 100 == 0) {
                 DateTimeFormatter dtf = DateTimeFormatter.ofPattern("HH:mm:ss");
                 LocalDateTime now = LocalDateTime.now();
-                System.out.println(dtf.format(now) + "\t\tProgress: " + i + "\t\tDownloads: " + this.downloaded + "\t\tFailures: " + this.failedImages);
+                System.out.println(dtf.format(now) + "\t\tProgress: " + i + "\t\tDownloads: " + this.downloaded + "\t\tFailures: " + this.failedImages + "\t\tSkipped: " + this.skipped);
             }
             i++;
 
@@ -127,10 +128,11 @@ public class ImageDownloader {
     }
 
     public void downloadAndResize(String strURL, String id, int landmarkID) {
-        File f = new File("photos/" + landmarkID + "/");
+        String fileLoc = "E:\\Dissertation\\Landmarker\\Training\\TrainingData\\GoogleDataset\\";
+        File f = new File(fileLoc + "photos/" + landmarkID + "/");
 
         String name = landmarkID + "/" + id;
-        String location = "photos/" + name + ".jpg";
+        String location = fileLoc + "photos/" + name + ".jpg";
 
         if(!f.exists()){
             f.mkdirs();
@@ -138,6 +140,7 @@ public class ImageDownloader {
         File fLoc = new File(location);
         if(fLoc.exists()){
             //this.downloadedList.add(fLoc);
+            this.skipped++;
             this.downloaded++;
             return;
         }
