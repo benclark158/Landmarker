@@ -15,14 +15,14 @@ import java.util.regex.Pattern;
 
 public class LandmarkDataComplier {
 
-    public void generateInformation() throws IOException {
+    public void run() throws IOException {
         //List<Tuple<Integer, String>> listNames = new ArrayList<>();
         HashMap<Integer, QuadTuple> ukMap = this.getUKLandmarks();
         this.outputImageData(ukMap);
     }
 
     public void outputImageData(HashMap<Integer, QuadTuple> ukMap) throws IOException {
-        String strDir = "..\\TrainingData\\GoogleDataset\\";
+        String strDir = "..\\TrainingData\\GoogleDataset\\photos\\";
 
         File f = new File("E:\\Dissertation\\Landmarker\\Training\\train.csv");    //creates a new file instance
         FileReader fr = new FileReader(f);   //reads the file
@@ -33,7 +33,7 @@ public class LandmarkDataComplier {
 
         int i = 0;
 
-        FileWriter writer = new FileWriter("uonTrainingTest.csv", true);
+        FileWriter writer = new FileWriter("googleTrainingTest.csv", true);
         writer.write("landmarkID,url,actual_latitude,actual_longitude,noise_lat,noise_long\r\n");
 
         Random random = new Random();
@@ -41,7 +41,7 @@ public class LandmarkDataComplier {
         while ((line = br.readLine()) != null) {
             if (line.contains("landmark_id")) {
                 continue;
-            } else if (i % 100 == 0) {
+            } else if (i % 10000 == 0) {
                 DateTimeFormatter dtf = DateTimeFormatter.ofPattern("HH:mm:ss");
                 LocalDateTime now = LocalDateTime.now();
                 System.out.println(dtf.format(now) + "\t\tProgress: " + i);
@@ -60,6 +60,7 @@ public class LandmarkDataComplier {
                 if (quad != null && quad.d) {
                     String loc = strDir + landmarkID + "\\" + id + ".jpg";
                     File locFile = new File(loc);
+                    String str = locFile.getAbsolutePath();
                     if(locFile.exists()){
                         //THIS FILE EXISTS SO WRITE TO FILE!
 
@@ -67,7 +68,7 @@ public class LandmarkDataComplier {
                         float nLat = tuple.a;
                         float nLong = tuple.b;
 
-                        String format = landmarkID + "," + loc.replace("..\\", "").replace("\\", "") +
+                        String format = landmarkID + "," + loc.replace("..\\", "/").replace("\\", "/") +
                                 "," + quad.b + "," + quad.c + "," + nLat + "," + nLong + "\r\n";
                         writer.write(format);
                     }
@@ -80,8 +81,8 @@ public class LandmarkDataComplier {
 
     public Tuple<Float, Float> addNoiceToLatLong(float latitude, float longitude, Random random){
 
-        float latm = (random.nextFloat() * 200.0f) - 100.0f;
-        float longm = (random.nextFloat() * 200.0f) - 100.0f;
+        float latm = (random.nextFloat() * 100.0f) - 50.0f;
+        float longm = (random.nextFloat() * 100.0f) - 50.0f;
 
         float earth = 6378.137f;  //radius of the earth in kilometer
         double pi = Math.PI;

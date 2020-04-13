@@ -38,8 +38,11 @@ public class Main {
         //ImageDownloader down = new ImageDownloader();
         //down.collectImages();
 
-        CustomDatasetCompiler comp = new CustomDatasetCompiler();
-        comp.start();
+        //CustomDatasetCompiler comp = new CustomDatasetCompiler();
+        //comp.start();
+
+        LandmarkDataComplier data = new LandmarkDataComplier();
+        data.run();
     }
 
     private void organiseFiles() {
