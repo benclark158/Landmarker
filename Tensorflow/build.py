@@ -4,7 +4,8 @@ import tensorflow as tf
 
 import time
 
-from tensorflow.keras import datasets, layers, models
+from tensorflow.keras import datasets, layers, models, Model
+from keras.models import Sequential
 
 class dwLayer(tf.keras.Model):
   def __init__(self, name, strides):
@@ -54,7 +55,7 @@ def makeModel():
   time.sleep(0.01)
 
   modelImg = models.Sequential()
-  modelImg.add(layers.InputLayer((224, 224, 3)))
+  modelImg.add(layers.InputLayer(input_shape=(224, 224, 3)))
 
   #3x3 Conv
   modelImg.add(layers.Conv2D(name='conv', filters=32, kernel_size=(3, 3), activation='relu', strides=(2, 2), data_format='channels_last', padding='same'))
@@ -91,22 +92,23 @@ def makeModel():
 
   modelImg.add(layers.Flatten())
 
-  #inputGPS = Input(shape=(2,))
+  inputGPS = models.Sequential()
+  inputGPS.add(layers.InputLayer(input_shape=(2,)))
 
+  combinedModel = layers.concatenate([inputGPS.output, modelImg.output])
 
+  x = (layers.Dense(64, activation='relu'))(combinedModel)
+  x = (layers.Dense(64, activation='relu'))(x)
+  x = (layers.Dense(64, activation='relu'))(x)
+  x = (layers.Dense(15265, activation='softmax'))(x)
 
-  modelImg.add(layers.Dense(64, activation='relu'))
-  modelImg.add(layers.Dense(64, activation='relu'))
-  modelImg.add(layers.Dense(64, activation='relu'))
-  modelImg.add(layers.Dense(27, activation='softmax'))
-
-  # add relu to this section? ReLU has a weird structure
   
+  model = tf.keras.Model(inputs=[inputGPS.input, modelImg.input], outputs=x)
   
-  modelImg.summary()
+  model.summary()
 
-  modelImg.compile(optimizer='adam',
+  model.compile(optimizer='adam',
 		loss='sparse_categorical_crossentropy',
 		metrics=['accuracy'])
 
-  return modelImg
+  return model

@@ -31,12 +31,15 @@ public class Main {
 
         //return;
 
-        Main main = new Main();
+        //Main main = new Main();
 
         //main.organiseFiles();
 
-        ImageDownloader down = new ImageDownloader();
-        down.collectImages();
+        //ImageDownloader down = new ImageDownloader();
+        //down.collectImages();
+
+        CustomDatasetCompiler comp = new CustomDatasetCompiler();
+        comp.start();
     }
 
     private void organiseFiles() {
