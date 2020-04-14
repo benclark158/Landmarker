@@ -50,7 +50,7 @@ class pwLayer(tf.keras.Model):
     return tf.nn.relu(x)
 
 	
-def makeModel():
+def makeModel(numClasses):
   print("building\n")
   time.sleep(0.01)
 
@@ -100,7 +100,7 @@ def makeModel():
   x = (layers.Dense(64, activation='relu'))(combinedModel)
   x = (layers.Dense(64, activation='relu'))(x)
   x = (layers.Dense(64, activation='relu'))(x)
-  x = (layers.Dense(15265, activation='softmax'))(x)
+  x = (layers.Dense(numClasses, activation='softmax'))(x)
 
   
   model = tf.keras.Model(inputs=[inputGPS.input, modelImg.input], outputs=x)

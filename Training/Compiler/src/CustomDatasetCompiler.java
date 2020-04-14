@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Random;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class CustomDatasetCompiler {
 
@@ -19,10 +20,14 @@ public class CustomDatasetCompiler {
 
         //gets list of all landmarks in given dir
         List<String> landmarks = new ArrayList<>();
+        HashMap<String, Integer> landmarkNumbers = new HashMap<>();
+        AtomicInteger i = new AtomicInteger();
 
         File datasetFile = new File(datasetLocation);
         Files.list(datasetFile.toPath()).forEach(path -> {
             //System.out.println(path.getFileName().toString());
+            i.getAndIncrement();
+            landmarkNumbers.put(path.getFileName().toString(), 999000 + i.get());
             landmarks.add(path.getFileName().toString());
         });
 
@@ -51,6 +56,7 @@ public class CustomDatasetCompiler {
         writer.write("landmarkID,url,actual_latitude,actual_longitude,noise_lat,noise_long\r\n");
         for(Tuple<String, String> t : landmarkImgPair){
             String landmark = t.a;
+            Integer landmarkNumber = landmarkNumbers.get(landmark);
             String imgURL = datasetLocation + landmark + "\\" + t.b;
 
             imgURL = imgURL.replace("..\\", "/").replace("\\", "/");
@@ -63,7 +69,7 @@ public class CustomDatasetCompiler {
             float nLat = latlong.a;
             float nLong = latlong.b;
 
-            String line = landmark + "," + imgURL + "," + latitude + "," + longitude + "," + nLat + "," + nLong + "\r\n";
+            String line = landmarkNumber + "," + imgURL + "," + latitude + "," + longitude + "," + nLat + "," + nLong + "\r\n";
             writer.write(line);
         }
         writer.close();

@@ -41,8 +41,11 @@ public class Main {
         //CustomDatasetCompiler comp = new CustomDatasetCompiler();
         //comp.start();
 
-        LandmarkDataComplier data = new LandmarkDataComplier();
-        data.run();
+        MapLandmarks map = new MapLandmarks();
+        map.run();
+
+        //LandmarkDataComplier data = new LandmarkDataComplier();
+        //data.run();
     }
 
     private void organiseFiles() {

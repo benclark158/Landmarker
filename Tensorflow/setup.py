@@ -8,15 +8,17 @@ import build, training
 from tensorflow.keras import datasets, layers, models
 
 doBuild = True
-doTrain = False
+doTrain = True
 doSave = False
+
+numClasses = 15129+1
 
 if(doBuild):
   time.sleep(1)
   print("Making model")
   time.sleep(1)
 
-  model = build.makeModel()
+  model = build.makeModel(numClasses)
 
 if(doTrain):
 
@@ -24,7 +26,7 @@ if(doTrain):
   print("Training model")
   time.sleep(1)
 
-  model_trained = training.training(model=model, steps=10, noEpochs=1)
+  model_trained = training.training(model=model, steps=10, noEpochs=1, numClasses=numClasses)
 
   time.sleep(1)
   print("Finished training")
