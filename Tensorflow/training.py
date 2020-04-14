@@ -53,7 +53,7 @@ def loadImages(paths):
     images = []
   
     for fp in paths:
-        images.append(imread(fp[0], as_grey = False))
+        images.append(imread("" + fp[0]))
   
     images = np.asarray(images, dtype=np.float32)
   
