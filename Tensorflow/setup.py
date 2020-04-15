@@ -9,7 +9,7 @@ from tensorflow.keras import datasets, layers, models
 
 doBuild = True
 doTrain = True
-doSave = False
+doSave = True
 
 numClasses = 15129+1
 

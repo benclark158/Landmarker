@@ -185,7 +185,7 @@ public class ImageDownloader {
         try {
             //inputStream.reset();
             BufferedImage img = ImageIO.read(ff);
-            int size = 244;
+            int size = 224;
 
             BufferedImage newImg = resize(img, size, size);
 
