@@ -33,7 +33,7 @@ class SplashScreen extends React.Component{
 
     waitFor1Sec = async() => {
         return new Promise((resolve) =>
-          setTimeout(() => { resolve('result') }, 5000)
+          setTimeout(() => { resolve('result') }, 2000)
         );
     }
 

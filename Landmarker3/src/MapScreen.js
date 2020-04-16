@@ -50,8 +50,10 @@ class MapScreen extends React.Component {
 
                         //59.682309, -0.445763
                       }}
-                
                 />
+                <TouchableOpacity style={styles.floatingBtn} onPress={() => this.props.navigation.navigate("HistoryScreen")}>
+                    <Text style={{ textAlign: "right" }}>Exit</Text>
+                </TouchableOpacity>
             </View>
         </>
 
@@ -65,6 +67,18 @@ const styles = StyleSheet.create({
         width: "100%",
         height: "100%",
     },
+    floatingBtn: { 
+        backgroundColor: "#ed6a5a",
+        position: "absolute",
+        display: "flex",
+        width: 60,
+        height: 60,
+        padding: 10,
+        margin: 10,
+        right: 0,
+        bottom: 0,
+        borderRadius: 50,
+    }
 });
 
 export default MapScreen;
