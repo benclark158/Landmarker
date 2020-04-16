@@ -66,7 +66,7 @@ def loadImages(paths, total):
     for fp in paths:
         path = "E:/Dissertation/Landmarker/Training" + fp[0]
         img = cv.imread(path)
-        if(img.shape == (244, 244, 3)):
+        if(img.shape == (224, 224, 3)):
             images.append(img)
             i = i + 1
             bar.update(i)
@@ -101,7 +101,7 @@ def training(model, steps, noEpochs, numClasses):
     #print(train)
 
     labels = dataDF['landmarkID'].values
-    labels = keras.utils.to_categorical(labels, numClasses)
+    #labels = keras.utils.to_categorical(labels, numClasses)
 
     x_train, x_test, y_train, y_test = train_test_split(attDF, labels, test_size = 0.3, random_state=666)
 
