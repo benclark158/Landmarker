@@ -18,7 +18,9 @@ import {
     View,
     Dimensions,
     Image,
-    Button
+    Button,
+    Alert,
+    BackHandler
 } from "react-native";
 
 import Icon from 'react-native-vector-icons/Ionicons';
@@ -52,6 +54,28 @@ class CameraScreen extends React.Component {
         };
     }
 
+    backAction = () => {
+        if(isHidden){
+            BackHandler.exitApp();
+            return true;
+        } else {
+            this.toggleSubview();
+            return true;
+        }
+    }
+
+    componentDidMount(){
+        this.backHandler =BackHandler.addEventListener(
+            "hardwareBackPress",
+            this.backAction
+        );
+    }
+
+    componentWillUnmount(){
+        this.backHandler.remove();
+        
+    }
+    
     render() {
         var camera = <>
             <RNCamera
@@ -72,7 +96,7 @@ class CameraScreen extends React.Component {
                 <TouchableOpacity
                     style={styles.utilButton}
                     onPress={this.rotateCamera.bind(this)}>
-                    <Icon name="ios-reverse-camera" size={40} color="#aaa"
+                    <Icon name="ios-reverse-camera" size={40} color="#93e5ab"
                         style={{alignSelf: "center"}}
                     />
                 </TouchableOpacity>
@@ -81,7 +105,7 @@ class CameraScreen extends React.Component {
                 <TouchableOpacity
                     onPress={this.takePicture.bind(this)}
                     style={styles.capButton}>
-                    <Icon name="ios-camera" size={80} color="#ccc"
+                    <Icon name="ios-camera" size={80} color="#ed6a5a"
                         style={{alignSelf: "center"}}
                     />
                 </TouchableOpacity>
@@ -90,7 +114,7 @@ class CameraScreen extends React.Component {
                 <TouchableOpacity
                     style={styles.utilButton}
                     onPress={() => this.props.navigation.navigate('MapScreen')}>
-                    <Icon name="md-map" size={40} color="#aaa"
+                    <Icon name="md-map" size={40} color="#93e5ab"
                         style={{alignSelf: "center"}}
                     />
                 </TouchableOpacity>
@@ -106,14 +130,9 @@ class CameraScreen extends React.Component {
                 }
             ]}>
             <View
-                style={{
-                    right: 0,
-                    display: "flex",
-                    width: "25%",
-                    marginLeft: "75%"
-                }}>
+                style={styles.subViewView}>
                 <TouchableOpacity onPress={() => this.toggleSubview()}>
-                    <Text style={{ textAlign: "right" }}>Exit</Text>
+                    <Text style={styles.subViewText}>Close X</Text>
                 </TouchableOpacity>
             </View>
             <Image source={this.state.imagePath} />
@@ -154,6 +173,9 @@ class CameraScreen extends React.Component {
 
     takePicture = async () => {
         if (this.camera) {
+
+            this.toggleSubview();
+
             var options = { quality: 0.0001, base64: false, fixOrientation: true, pauseAfterCapture: true, width: 244};
             var data = await this.camera.takePictureAsync(options);
 
@@ -162,8 +184,6 @@ class CameraScreen extends React.Component {
 
             console.log(imagePathBig);
             console.log(imagePath);
-
-            this.toggleSubview();
 
             /*ImageResizer.createResizedImage(imagePathBig, 224, 224, 'JPEG', 10, 0, "data/user/0/com.tempinterfaces/cache/Camera/smaller").then((response) => {
                         // response.uri is the URI of the new image that can now be displayed, uploaded...
@@ -245,7 +265,27 @@ const styles = StyleSheet.create({
         left: 0,
         right: 0,
         zIndex: 1000,
-        backgroundColor: "#e7c9ff"
+        backgroundColor: "#cae5ff",
+        borderRadius: 10,
+        shadowOffset: {width: 5, height: 5},
+        shadowOpacity: 0.5,
+        shadowRadius: 5,
+        shadowColor: '#000', 
+    },
+    subViewView: {
+        right: 0,
+        display: "flex",
+        width: "25%",
+        marginLeft: "75%",
+        height: "10%",
+        paddingTop: "2%",
+        paddingRight: "2%",
+    }, 
+    subViewText: {
+        fontWeight: 'bold',
+        color: "#945e9d",
+        textAlign: "right",
+        fontSize: 20,
     },
     capture: {
         flex: 0,

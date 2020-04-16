@@ -40,19 +40,19 @@ import {
 } from 'react-navigation-stack';
 
 const MainNavigator = createStackNavigator({
-    Home: {
-      screen: SplashScreen,
-      navigationOptions:{
-        headerShown: false,
-    }
+    SplashScreen: {
+        screen: SplashScreen,
+        navigationOptions:{
+            headerShown: false,
+        }
     },
     CameraScreen: {
-      screen: CameraScreen,
-      navigationOptions: {
-        imgUri: null,
-        recData: null,
-        headerShown: false,
-      }
+        screen: CameraScreen,
+        navigationOptions: {
+            imgUri: null,
+            recData: null,
+            headerShown: false,
+        }
     },
     HistoryScreen: {
         screen: HistoryScreen,
@@ -65,19 +65,13 @@ const MainNavigator = createStackNavigator({
         screen: MapScreen,
         navigationOptions: {
             headerShown: true,
-            title: "",
-            headerRight: <Button
-    onPress={() => navigation.navigate('Parametres')}
-    title="Parameters"
-    color="#000"
-/>
+            title: "Map"
         },
        
     }
   },
   {
-    initialRouteName: 'CameraScreen',
-    transitionConfig: () => fadeOut(2000),
+    initialRouteName: 'SplashScreen',
   }
 );
 
