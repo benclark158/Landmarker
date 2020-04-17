@@ -26,13 +26,20 @@ import {
 import Icon from 'react-native-vector-icons/Ionicons';
 
 import { RNCamera } from "react-native-camera";
-        
+
+import RNLocation from "react-native-location";
+
+import * as tf from '@tensorflow/tfjs';
+
 var isHidden = true;
 
 class CameraScreen extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
+            isTFReady: false,
+            model: null,
+            responseURI: "",
             bounceValue: new Animated.Value(500), //This is the initial position of the subview
             buttonText: "Show Subview",
             viewHeight: 500,
@@ -64,16 +71,40 @@ class CameraScreen extends React.Component {
         }
     }
 
-    componentDidMount(){
+    async componentDidMount(){
         this.backHandler =BackHandler.addEventListener(
             "hardwareBackPress",
             this.backAction
         );
+
+        RNLocation.requestPermission({
+            ios: "whenInUse",
+            android: {
+              detail: "fine",
+              rationale: {
+                title: "Location permission",
+                message: "We use your location to demo the library",
+                buttonPositive: "OK",
+                buttonNegative: "Cancel"
+              }
+            }
+        });
+
+        await tf.ready();
+
+        this.setState({
+            isTFReady: true,
+        });
+
+        const model = await tf.loadLayersModel('localstorage://model-1,json');
+
+        this.setState({
+            model: model,
+        })
     }
 
     componentWillUnmount(){
         this.backHandler.remove();
-        
     }
     
     render() {
@@ -172,6 +203,41 @@ class CameraScreen extends React.Component {
     }
 
     takePicture = async () => {
+        var ready = this.state.isTFReady;
+
+        console.log(ready);
+
+        const model = this.state.model;
+
+        RNLocation.configure({
+            distanceFilter: 50, // Meters
+            desiredAccuracy: {
+            ios: "best",
+            android: "balancedPowerAccuracy"
+            },
+            // Android only
+            androidProvider: "auto",
+            interval: 5000, // Milliseconds
+            fastestInterval: 500, // Milliseconds
+            maxWaitTime: 5000, // Milliseconds
+            // iOS Only
+            activityType: "other",
+            allowsBackgroundLocationUpdates: false,
+            headingFilter: 1, // Degrees
+            headingOrientation: "portrait",
+            pausesLocationUpdatesAutomatically: false,
+            showsBackgroundLocationIndicator: false,
+        });
+
+        var latitude;
+        var longitude;
+
+        RNLocation.getLatestLocation({ timeout: 500 }).then(latestLocation => {
+            // Use the location here
+            latitude = latestLocation["latitude"];
+            longitude = latestLocation["longitude"];
+        });
+
         if (this.camera) {
 
             this.toggleSubview();
@@ -179,49 +245,38 @@ class CameraScreen extends React.Component {
             var options = { quality: 0.0001, base64: false, fixOrientation: true, pauseAfterCapture: true, width: 244};
             var data = await this.camera.takePictureAsync(options);
 
-            var imagePathBig = data.uri;
             var imagePath = data.uri;
-
-            console.log(imagePathBig);
+            
+            console.log(latitude + " : " + longitude);
             console.log(imagePath);
 
-            /*ImageResizer.createResizedImage(imagePathBig, 224, 224, 'JPEG', 10, 0, "data/user/0/com.tempinterfaces/cache/Camera/smaller").then((response) => {
+            /*
+            await ImageResizer.createResizedImage(imagePathBig, 224, 224, 'JPEG', 10, 0, "data/user/0/com.tempinterfaces/cache/Camera/smaller").then((response) => {
                         // response.uri is the URI of the new image that can now be displayed, uploaded...
                         // response.path is the path of the new image
                         // response.name is the name of the new image with the extension
                         // response.size is the size of the new image
-                        console.log('test :-' + response.uri);
-                    }).catch((err) => {
-                        // Oops, something went wrong. Check that the filename is correct and
-                        // inspect err to get more details.
-                        console.error(err);
-                    });
-        
-                    var result = "";
-                    await tflite.detectObjectOnImage({
-                        path: imagePath,
-                        imageMean: 127.5,
-                        imageStd: 127.5,
-                        threshold: 0.05,             // defaults to 0.1
-                        numResultsPerClass: 5,// defaults to 5
-                    },
-                        (err, res) => {
-                            if(err)
-                                console.log(err);
-                            else {
-                                console.log(res);
-                                this.props.navigation.navigate('InfoScreen', {
-                                    imgUri: imagePath,
-                                    recData1: res[0].detectedClass + ": " + res[0].confidenceInClass,
-                                    recData2: res[1].detectedClass + ": " + res[1].confidenceInClass,
-                                    recData3: res[2].detectedClass + ": " + res[2].confidenceInClass,
-                                    recData4: res[3].detectedClass + ": " + res[3].confidenceInClass,
-                                    recData5: res[4].detectedClass + ": " + res[4].confidenceInClass,
-                                });
-                            }
-                        }
-                    );
+            console.log('test :-' + response.uri);
 
+            this.setState({
+                responseURI: response.uri,
+            });
+
+            }).catch((err) => {
+                // Oops, something went wrong. Check that the filename is correct and
+                // inspect err to get more details.
+                console.error(err);
+            });*/
+
+            const resp = await fetch(imagePath, {}, {isBinary: true});
+            const rawImgData = await resp.arrayBuffer();
+            const image = decodeJpeg(rawImgData);
+
+            const tensorInput = tf.Tensor([[latitude, longitude], image]);
+            const output = model.predict(tensorInput);
+
+            console.log(output.toString())
+        
             /*var jRes = result;
 
             this.setState({

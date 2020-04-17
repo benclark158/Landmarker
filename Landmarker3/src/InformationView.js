@@ -17,7 +17,10 @@ class InformationView extends React.Component{
             //information: "https://google.com/",
         };
     }
-
+    //This doesnt work for some reason
+    //<View style={styles.infoContainer}> 
+    //<WebView style={styles.information} source={{ html: this.state.information }} />
+    //</View>
 
     render(){
 
@@ -27,9 +30,7 @@ class InformationView extends React.Component{
                     <Text style={styles.heading}>
                         {this.state.title}
                     </Text>
-                    <View style={styles.infoContainer}> 
-                        <WebView style={styles.information} source={{ html: this.state.information }} />
-                    </View>
+                    
                 </View>
             </>
         );

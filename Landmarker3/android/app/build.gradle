@@ -80,6 +80,8 @@ project.ext.react = [
     enableHermes: false,  // clean and rebuild if changing
 ]
 
+
+apply from: '../../node_modules/react-native-unimodules/gradle.groovy'
 apply from: "../../node_modules/react-native/react.gradle"
 
 /**
@@ -181,6 +183,7 @@ android {
 }
 
 dependencies {
+    addUnimodulesDependencies()
     implementation project(':react-native-webview')
     implementation project(':react-native-camera')
     implementation fileTree(dir: "libs", include: ["*.jar"])
