@@ -1,6 +1,7 @@
 import glob
 import tensorflow as tf
 from keras.preprocessing.image import ImageDataGenerator
+from keras.utils import Sequence
 from time import time
 from tensorflow.python.keras.callbacks import TensorBoard
 
@@ -15,7 +16,37 @@ from keras.layers import Input
 import cv2 as cv
 from PIL import ImageFile
 
+from datetime import datetime
+
 import progressbar
+
+def createGenerator( dataframe, gps_lat, gps_long, labels):
+
+    while True:
+        # suffled indices    
+        #idx = np.random.permutation( X.shape[0])
+        # create image generator
+        datagen = ImageDataGenerator(
+            rescale=1./255,
+            rotation_range=10, #180,  # randomly rotate images in the range (degrees, 0 to 180)
+            width_shift_range=0.1, #0.1,  # randomly shift images horizontally (fraction of total width)
+            height_shift_range=0.1, #0.1,  # randomly shift images vertically (fraction of total height)
+            horizontal_flip=True,  # randomly flip images
+            vertical_flip=False)  # randomly flip images
+
+        batches = datagen.flow_from_dataframe(dataframe=dataframe, x_col="url", y_col="landmarkID", target_size=(224, 224), batch_size=1, shuffle=False)
+        idx0 = 0
+        for batch in batches:
+            #idx1 = idx0 + batch[0].shape[0]
+
+            yield [[gps_lat[idx0], gps_long[idx0]], batch[0]], batch[1]
+
+            #print(batch[1])
+            idx0 = idx0 + 1
+            #idx0 = idx1
+            if idx0 >= len(dataframe.values):
+                break
+
 
 def training(model, steps, noEpochs):
     #train_datagen = ImageDataGenerator()
@@ -56,6 +87,11 @@ def training(model, steps, noEpochs):
 def loadImages(paths, total):
     ImageFile.LOAD_TRUNCATED_IMAGES = True
 
+    now = datetime.now()
+
+    current_time = now.strftime("%H:%M:%S")
+    print("Current Time =", current_time)
+
     images = []
   
     bar = progressbar.ProgressBar(maxval=total, \
@@ -64,7 +100,7 @@ def loadImages(paths, total):
     i = 0
 
     for fp in paths:
-        path = "E:/Dissertation/Landmarker/Training" + fp[0]
+        path = "C:/Users/Ben Clark/Desktop/" + fp[0]
         img = cv.imread(path)
         if(img.shape == (224, 224, 3)):
             images.append(img)
@@ -87,11 +123,9 @@ def loadImages(paths, total):
     return images
 
 
-def training(model, steps, noEpochs, numClasses):
-    colList = ["landmarkID", "url", "actual_latitude", "actual_longitude", "noise_lat", "noise_long"]
-    attList = ["url", "noise_lat", "noise_long"]
-    dataDF = pd.read_csv('..\\Training\\formattedDataPrt.csv', usecols=colList)
-    attDF = pd.read_csv('..\\Training\\formattedDataPrt.csv', usecols=attList)
+def training(model, noEpochs, numClasses, index):
+    attList = ["landmarkID", "url", "noise_lat", "noise_long"]
+    attDF = pd.read_csv('C:\\Users\\Ben Clark\\Desktop\\partitionedDataset\\partition_' + str(index) + '.csv', usecols=attList, dtype=str)
 
     img_rows, img_cols = 244, 244
 
@@ -100,45 +134,67 @@ def training(model, steps, noEpochs, numClasses):
 
     #print(train)
 
-    labels = dataDF['landmarkID'].values
+    labels = attDF['landmarkID'].values
     #labels = keras.utils.to_categorical(labels, numClasses)
 
-    x_train, x_test, y_train, y_test = train_test_split(attDF, labels, test_size = 0.3, random_state=666)
+    #x_train, x_test, y_train, y_test = train_test_split(attDF, labels, test_size = 0.3, random_state=666)
 
     #x is inputs 
     # y is labels
 
-    x_train_img = x_train.iloc[:, :1]
-    x_test_img = x_test.iloc[:, :1]
+    x_train_img = attDF['url'].values#x_train.iloc[:, 1]
+    #x_test_img = x_test.iloc[:, :2]
 
-    x_train_gps = x_train.iloc[:,1:]
-    x_test_gps = x_test.iloc[:,1:]
-
-
-    x_train_gps_lat = x_train.iloc[:,1]
-    x_train_gps_long = x_train.iloc[:,2]
-
-    x_test_gps_lat = x_test.iloc[:,1]
-    x_test_gps_long = x_test.iloc[:,2]
+    x_train_gps_lat = attDF['noise_lat'].values
+    x_train_gps_long = attDF['noise_long'].values
+    #x_test_gps = x_test.iloc[:,2:]
 
     print("-- Finished splitting")
     print("-- Loading images")
 
-    train_images = loadImages(x_train_img.values, len(x_train_img.values))
-    test_images = loadImages(x_test_img.values, len(x_test_img.values))
+    #train_images = loadImages(x_train_img.values, len(x_train_img.values))
+    #test_images = loadImages(x_test_img.values, len(x_test_img.values))
 
-    
+    #steps = len(x_train_img.values) + len(x_test_img.values) / batch_size
+
+    now = datetime.now()
+
+    current_time = now.strftime("%H:%M:%S")
+    print("Current Time =", current_time)
 
     print("-- Starting Training")
 
+    #idg = MultiGenerator(gps=x_train_gps, imgs=imgDF, labels=labels)
+
     tensorboard = TensorBoard(log_dir="logs\{}".format(time()))
 
-    model.fit([x_train_gps, train_images], y_train,
-          batch_size=batch_size,
-          epochs=noEpochs,
-          callbacks=[tensorboard],
-          verbose=1,
-          validation_data=([x_test_gps, test_images], y_test),
-          shuffle=True)
+    model.fit(
+        createGenerator(dataframe=attDF, gps_lat=x_train_gps_lat, gps_long=x_train_gps_lat, labels=labels),
+        batch_size=None,
+        epochs=noEpochs,
+        callbacks=[tensorboard],
+        verbose=1,
+        #validation_data=([x_test_gps, test_images], y_test)
+        )
+
+    del imgDF
+    del attDF
+    del labels
+
+    del x_train
+    del x_test
+    del y_train
+    del y_test
+
+    del x_train_img
+    del x_test_img
+
+    del x_train_gps
+    del x_test_gps
+
+    #del train_images
+    #del test_images
+
+    return model
 
 

@@ -1,3 +1,5 @@
 TrainingData/*
 /*.csv
 TestData/*
+partitionedDataset/*
+ComponentData/*
