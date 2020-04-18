@@ -62,17 +62,21 @@ class CameraScreen extends React.Component {
     }
 
     backAction = () => {
-        if(isHidden){
-            BackHandler.exitApp();
-            return true;
+        if(this.props.navigation.isFocused()){
+            if(isHidden){
+                BackHandler.exitApp();
+                return true;
+            } else {
+                this.toggleSubview();
+                return true;
+            }
         } else {
-            this.toggleSubview();
-            return true;
+            return false;
         }
     }
 
     async componentDidMount(){
-        this.backHandler =BackHandler.addEventListener(
+        this.backHandler = BackHandler.addEventListener(
             "hardwareBackPress",
             this.backAction
         );
@@ -170,7 +174,7 @@ class CameraScreen extends React.Component {
             ]}>
             <View style={styles.subViewView}>
                 <TouchableOpacity onPress={() => this.toggleSubview()}>
-                    <Text style={styles.subViewText}>Close X</Text>
+                    <Text style={styles.subViewText}>Close</Text>
                 </TouchableOpacity>
             </View>
             <Image source={this.state.imagePath} />
@@ -329,7 +333,7 @@ const styles = StyleSheet.create({
         right: 0,
         zIndex: 1000,
         backgroundColor: "#fff",
-        borderRadius: 10,
+        borderRadius: 20,
         shadowOffset: {width: 5, height: 5},
         shadowOpacity: 0.5,
         shadowRadius: 5,
@@ -343,11 +347,15 @@ const styles = StyleSheet.create({
         height: "10%",
         paddingTop: "2%",
         paddingRight: "2%",
-        backgroundColor: "#03191e",
+        backgroundColor: "#afe9f0",
+        borderBottomWidth: 5,
+        borderColor: "#00d3ec",
+        borderTopRightRadius: 20,
+        borderTopLeftRadius: 20,
     }, 
     subViewText: {
         fontWeight: 'bold',
-        color: "#945e9d",
+        color: "#fff",
         textAlign: "right",
         fontSize: 20,
     },

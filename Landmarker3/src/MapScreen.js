@@ -10,6 +10,8 @@ import React from "react";
 
 import HistoryCard from "./HistoryCard";
 
+import Icon from 'react-native-vector-icons/FontAwesome5';
+
 import {
     StyleSheet,
     Animated,
@@ -52,7 +54,9 @@ class MapScreen extends React.Component {
                       }}
                 />
                 <TouchableOpacity style={styles.floatingBtn} onPress={() => this.props.navigation.navigate("HistoryScreen")}>
-                    <Text style={{ textAlign: "right" }}>Exit</Text>
+                    <Icon name="history" size={33} color="rgba(255, 255, 255, 0.8)"
+                        style={{alignSelf: "center"}}
+                    />
                 </TouchableOpacity>
             </View>
         </>
@@ -68,16 +72,21 @@ const styles = StyleSheet.create({
         height: "100%",
     },
     floatingBtn: { 
-        backgroundColor: "#ed6a5a",
+        backgroundColor: "#00d3ec",
+        borderColor: "#00d3ec",
+        borderWidth: 2,
+        color: "#fff",
         position: "absolute",
         display: "flex",
-        width: 60,
-        height: 60,
+        width: 65,
+        height: 65,
         padding: 10,
-        margin: 10,
+        margin: 20,
         right: 0,
         bottom: 0,
         borderRadius: 50,
+        justifyContent: "center",
+        textAlign: "center",
     }
 });
 
