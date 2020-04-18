@@ -96,30 +96,38 @@ class CameraScreen extends React.Component {
             isTFReady: true,
         });
 
-        const model = await tf.loadLayersModel('localstorage://model-1,json');
+        //const model = await tf.loadLayersModel('localstorage://model-1,json');
 
-        this.setState({
-            model: model,
-        })
+        //this.setState({
+        //    model: model,
+        //});
     }
 
     componentWillUnmount(){
         this.backHandler.remove();
     }
     
+    renderCamera = () => {
+        const isActive = this.props.navigation.isFocused()
+        if(isActive == true){
+            return(
+                <RNCamera
+                    ref={ref => {
+                        this.camera = ref;
+                    }}
+                    style={styles.camera}
+                    type={this.state.camera.type}
+                    flashMode={this.state.camera.flashMode}
+                    captureAudio={false}
+                />
+            );
+        } else {
+            return null
+        }
+    };
+
     render() {
-        var camera = <>
-            <RNCamera
-                ref={ref => {
-                    this.camera = ref;
-                }}
-                style={styles.camera}
-                captureAudio={false}
-                type={this.state.camera.type}
-                flashMode={this.state.camera.flashMode}
-                captureAudio={false}
-            />
-        </>
+        var cView = this.renderCamera();
 
         var screen = <>
         <View style={styles.buttonContainer}>
@@ -127,7 +135,7 @@ class CameraScreen extends React.Component {
                 <TouchableOpacity
                     style={styles.utilButton}
                     onPress={this.rotateCamera.bind(this)}>
-                    <Icon name="ios-reverse-camera" size={40} color="#93e5ab"
+                    <Icon name="ios-reverse-camera" size={40} color="rgba(255, 255, 255, 0.8)"
                         style={{alignSelf: "center"}}
                     />
                 </TouchableOpacity>
@@ -137,7 +145,7 @@ class CameraScreen extends React.Component {
                     onPress={this.takePicture.bind(this)}
                     style={styles.capButton}>
                     <Icon name="ios-camera" size={80} color="#ed6a5a"
-                        style={{alignSelf: "center"}}
+                        style={{alignSelf: "center", display: 'none'}}
                     />
                 </TouchableOpacity>
             </View>
@@ -145,7 +153,7 @@ class CameraScreen extends React.Component {
                 <TouchableOpacity
                     style={styles.utilButton}
                     onPress={() => this.props.navigation.navigate('MapScreen')}>
-                    <Icon name="md-map" size={40} color="#93e5ab"
+                    <Icon name="md-map" size={40} color="rgba(255, 255, 255, 0.8)"
                         style={{alignSelf: "center"}}
                     />
                 </TouchableOpacity>
@@ -160,8 +168,7 @@ class CameraScreen extends React.Component {
                     height: this.state.viewHeight
                 }
             ]}>
-            <View
-                style={styles.subViewView}>
+            <View style={styles.subViewView}>
                 <TouchableOpacity onPress={() => this.toggleSubview()}>
                     <Text style={styles.subViewText}>Close X</Text>
                 </TouchableOpacity>
@@ -171,7 +178,7 @@ class CameraScreen extends React.Component {
         </Animated.View>
         </>
     
-        return [camera, screen];
+        return [cView, screen];
     
     }
 
@@ -198,7 +205,8 @@ class CameraScreen extends React.Component {
             toValue: toValue,
             velocity: 6.0,
             tension: 2.0,
-            friction: 8.0
+            friction: 8.0,
+            useNativeDriver: true,
         }).start();
     }
 
@@ -320,7 +328,7 @@ const styles = StyleSheet.create({
         left: 0,
         right: 0,
         zIndex: 1000,
-        backgroundColor: "#cae5ff",
+        backgroundColor: "#fff",
         borderRadius: 10,
         shadowOffset: {width: 5, height: 5},
         shadowOpacity: 0.5,
@@ -330,11 +338,12 @@ const styles = StyleSheet.create({
     subViewView: {
         right: 0,
         display: "flex",
-        width: "25%",
-        marginLeft: "75%",
+        width: "100%",
+        marginLeft: "0%",
         height: "10%",
         paddingTop: "2%",
         paddingRight: "2%",
+        backgroundColor: "#03191e",
     }, 
     subViewText: {
         fontWeight: 'bold',
@@ -372,7 +381,8 @@ const styles = StyleSheet.create({
         justifyContent: "center",
         textAlign: "center",
         borderColor: "white",
-        borderWidth: 0,
+        borderWidth: 5,
+        borderRadius: 50,
         bottom: 0
     },
     mainBContainer: {

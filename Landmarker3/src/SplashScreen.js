@@ -23,12 +23,11 @@ class SplashScreen extends React.Component{
 
         return (
             <>
-                <View style={{ width: "100%", height: "100%", flex: 1, alignItems: "center", justifyContent: "center", backgroundColor: '#afe9f0', }}>
-
-                    
-                    <Image source={require('./imgs/icon.png')} style = {{height: "50%", width: "50%"}} resizeMode="contain"/>
-                    <Text style={{fontSize: 30, color: "white", fontWeight: "bold",}}>
-                        LANDMARKER
+                <View style={{ width: "100%", height: "100%", flex: 1, alignItems: "center", justifyContent: "center", backgroundColor: '#afe9f0', }}
+                    onStartShouldSetResponder={() => this.props.navigation.navigate('CameraScreen')}>
+                    <Image source={require('./imgs/splash.png')} style = {{height: "80%", width: "80%"}} resizeMode="contain"/>
+                    <Text style={{color: 'white'}}>
+                        Tap to start
                     </Text>
                 </View>
             </>
