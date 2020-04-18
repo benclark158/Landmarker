@@ -3,6 +3,7 @@ import {
     StyleSheet,
     View,
     Text,
+    Image,
   } from 'react-native';
 
 import { StackActions } from '@react-navigation/native';
@@ -22,9 +23,12 @@ class SplashScreen extends React.Component{
 
         return (
             <>
-                <View style={viewStyles}>
-                    <Text style={textStyles}>
-                        Splash Screen
+                <View style={{ width: "100%", height: "100%", flex: 1, alignItems: "center", justifyContent: "center", backgroundColor: '#afe9f0', }}>
+
+                    
+                    <Image source={require('./imgs/icon.png')} style = {{height: "50%", width: "50%"}} resizeMode="contain"/>
+                    <Text style={{fontSize: 30, color: "white", fontWeight: "bold",}}>
+                        LANDMARKER
                     </Text>
                 </View>
             </>
@@ -55,7 +59,7 @@ class SplashScreen extends React.Component{
         const data = await this.waitFor1Sec();
       
         if (data !== null) {
-            this.props.navigation.navigate('CameraScreen')
+            //this.props.navigation.navigate('CameraScreen')
         }
       }
 }
