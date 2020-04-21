@@ -13,7 +13,7 @@ public class FormatAll {
     public void run() throws IOException {
         //resizeImg("\\TrainingData\\GoogleDataset\\photos\\1896\\036b12e3c331a6e2.jpg");
 
-        File f = new File("E:\\Dissertation\\Landmarker\\Training\\formattedData.csv");    //creates a new file instance
+        File f = new File("E:\\Dissertation\\Landmarker\\Training\\Compiler\\lim-formattedData.csv");    //creates a new file instance
         FileReader fr = new FileReader(f);   //reads the file
         BufferedReader br = new BufferedReader(fr);  //creates a buffering character input stream
         String line = "";
@@ -43,7 +43,7 @@ public class FormatAll {
     }
 
     private void resizeImg(String location){
-        String baseLoc = "E:\\Dissertation\\Landmarker\\Training";
+        String baseLoc = ""; //""E:\\Dissertation\\Landmarker\\Training";
         location = baseLoc + location;
         File ff = new File(location);
 
