@@ -7,6 +7,8 @@ import build, training
 import webbrowser as wb
 import traceback
 import urllib.parse
+import cv2 as cv
+import numpy as np
 
 from tensorflow.keras import datasets, layers, models
 import tensorflowjs as tfjs
@@ -14,11 +16,11 @@ import tensorflowjs as tfjs
 def makeTheNetwork():
   doBuild = True
   doTrain = True
-  doSave = False
+  doSave = True
 
   model = []
 
-  numClasses = 54#15129+1
+  numClasses = 6#55#15130
 
   if(doBuild):
     time.sleep(1)
@@ -34,8 +36,10 @@ def makeTheNetwork():
     time.sleep(1)
 
 
-    #for i in range(0,10):
-    model = training.training(model=model, noEpochs=10, numClasses=numClasses, index=99)
+    #for i in range(0,5):
+      #model = training.training(model=model, numClasses=numClasses, index=999)
+
+    model = training.training(model=model, numClasses=numClasses, noEpochs=200)
 
     time.sleep(1)
     print("Finished training")
