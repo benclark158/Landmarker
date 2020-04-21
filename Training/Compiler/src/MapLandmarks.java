@@ -21,7 +21,7 @@ public class MapLandmarks {
         List<String> mapingLines = new ArrayList<>();
         HashMap<Integer, Integer> map = new HashMap<>();
 
-        File f = new File("E:\\Dissertation\\Landmarker\\Training\\completeDataset.csv");    //creates a new file instance
+        File f = new File("E:\\Dissertation\\Landmarker\\Training\\Compiler\\limitedData.csv");    //creates a new file instance
         FileReader fr = new FileReader(f);   //reads the file
         BufferedReader br = new BufferedReader(fr);  //creates a buffering character input stream
         String line = "";
@@ -66,18 +66,18 @@ public class MapLandmarks {
     }
 
     private void outputLines(List<String> lines, List<String> mappingLines) throws IOException {
-        FileWriter formatted = new FileWriter("formattedData.csv", true);
+        FileWriter formatted = new FileWriter("lim-formattedData.csv", true);
         formatted.write("landmarkID,url,actual_latitude,actual_longitude,noise_lat,noise_long\r\n");
 
         for(String line : lines){
-            formatted.write(line + "\r\n");
+            formatted.write(line.replace(",/TrainingData/", ",C:/Users/Ben Clark/Desktop/TrainingData/") + "\r\n");
         }
         formatted.close();
 
         FileWriter mapping = new FileWriter("idMapping.csv", true);
         mapping.write("oldID,newID\r\n");
 
-        for(String line : lines){
+        for(String line : mappingLines){
             mapping.write(line + "\r\n");
         }
         mapping.close();

@@ -20,7 +20,7 @@ def makeTheNetwork():
 
   model = []
 
-  numClasses = 6#55#15130
+  numClasses = 81#55#15130
 
   if(doBuild):
     time.sleep(1)

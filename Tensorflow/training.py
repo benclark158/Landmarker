@@ -130,7 +130,7 @@ def loadImages(paths, total):
 def training(model, numClasses, noEpochs=10, index=99):
     attList = ["landmarkID", "url", "noise_lat", "noise_long"]
     #attDF = pd.read_csv('C:\\Users\\Ben Clark\\Desktop\\partitionedDataset\\partition_' + str(index) + '.csv', usecols=attList, dtype=str)
-    attDF = pd.read_csv('C:\\Users\\Ben Clark\\Desktop\\formattedDataShort.csv', usecols=attList, dtype=str)
+    attDF = pd.read_csv('C:\\Users\\Ben Clark\\Desktop\\lim-formattedData.csv', usecols=attList, dtype=str)
 
     img_rows, img_cols = 244, 244
     batch_size = 32

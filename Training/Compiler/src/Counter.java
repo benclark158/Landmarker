@@ -13,7 +13,7 @@ public class Counter {
         //get amount of all landmarks
 
         HashMap<Integer, Integer> counter = new HashMap<>();
-        List<String> lines = new ArrayList<>();
+        List<Tuple<Integer, String>> lines = new ArrayList<>();
 
         File f = new File("E:\\Dissertation\\Landmarker\\Training\\ComponentData\\completeDataset.csv");    //creates a new file instance
         FileReader fr = new FileReader(f);   //reads the file
@@ -34,14 +34,14 @@ public class Counter {
             }
             i++;
 
-            lines.add(line);
-
             String[] split = line.split(",");
             int landmarkID = Integer.parseInt(split[0]);
 
+            lines.add(new Tuple<>(landmarkID, line));
+
             int currentCount = 0;
 
-            if(counter.containsKey(counter)){
+            if(counter.containsKey(landmarkID)){
                 currentCount = counter.get(landmarkID);
                 counter.remove(landmarkID);
             }
@@ -54,11 +54,19 @@ public class Counter {
         List<Integer> landmarksOver100 = new ArrayList<>();
 
         for(Integer id : counter.keySet()){
-            if(counter.get(id) >= 100){
+            if(counter.get(id) >= 500){
                 landmarksOver100.add(id);
             }
         }
 
+        FileWriter formatted = new FileWriter("limitedData.csv", true);
+        formatted.write("landmarkID,url,actual_latitude,actual_longitude,noise_lat,noise_long\r\n");
 
+        for(Tuple<Integer, String> t : lines){
+            if(landmarksOver100.contains(t.a)) {
+                formatted.write(t.b + "\r\n");
+            }
+        }
+        formatted.close();
     }
 }
