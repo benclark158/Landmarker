@@ -161,7 +161,7 @@ def training(model, numClasses, noEpochs=10, index=99):
 
     print("-- Starting Training @ ", current_time)
 
-    tensorboard = TensorBoard(log_dir="logs\\200epochs-{}".format(time()))
+    tensorboard = TensorBoard(log_dir="logs\\final-{}".format(time()))
 
     trainGen = doTrain(dataframe=x_train_img, gps=x_train_gps, labels=y_train, batch_size=batch_size)
     testGen = doTrain(dataframe=x_test_img, gps=x_test_gps, labels=y_test, batch_size=batch_size)
@@ -188,8 +188,6 @@ def doTrain(dataframe, gps, labels, batch_size=32):
     y_labs = np.reshape(labels, (len(gps.values), 1))
     x_gps = gps.astype(np.float).values
 
-    bs = batch_size
-
     datagen = ImageDataGenerator(
             rescale = 1./255,
             rotation_range=20,
@@ -205,7 +203,7 @@ def doTrain(dataframe, gps, labels, batch_size=32):
             x_col="url", 
             y_col="landmarkID", 
             target_size=(224, 224), 
-            batch_size=bs,
+            batch_size=batch_size,
             shuffle=False,
             class_mode="sparse")
 
@@ -226,9 +224,17 @@ def doTrain(dataframe, gps, labels, batch_size=32):
             if(idx0 >= len(gps.values)):
                 break
 
-def makePrediction(model, imgPath):
-  img = cv.imread(imgPath) / 255
-  img = np.reshape(img, (1, 224, 224, 3))
 
-  res = model.predict(img)
-  return res
+def makePrediction(model, imgPath, gpsArr):
+    img = cv.imread(imgPath) / 255
+    img = np.reshape(img, (1, 224, 224, 3))
+
+    gps = np.reshape(gpsArr, (1, 2))
+
+    res = model.predict([gps, img])
+
+    res = np.reshape(res, (84))
+
+    x = np.where(res == max(res))
+
+    return x[0][0]

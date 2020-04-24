@@ -20,7 +20,7 @@ def makeTheNetwork():
 
   model = []
 
-  numClasses = 82#55#15130
+  numClasses = 84#55#15130
 
   if(doBuild):
     time.sleep(1)
@@ -39,7 +39,7 @@ def makeTheNetwork():
     #for i in range(0,5):
       #model = training.training(model=model, numClasses=numClasses, index=999)
 
-    model = training.training(model=model, numClasses=numClasses, noEpochs=200)
+    model = training.training(model=model, numClasses=numClasses, noEpochs=30)
 
     time.sleep(1)
     print("Finished training")
@@ -52,7 +52,7 @@ def makeTheNetwork():
 
     tfjs.converters.save_keras_model(model, "E:\\")
 
-    model.save('saved_model\my_model') 
+    model.save('saved_model\imgGPS') 
     #model.save('model.h5') 
    # tfjs.converters.save_keras_model(model, "/")
     #converter = tf.lite.TFLiteConverter.from_keras_model(model_trained)

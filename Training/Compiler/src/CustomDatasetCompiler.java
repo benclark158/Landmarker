@@ -27,7 +27,7 @@ public class CustomDatasetCompiler {
         Files.list(datasetFile.toPath()).forEach(path -> {
             //System.out.println(path.getFileName().toString());
             String strPath = path.getFileName().toString();
-            if(strPath.toLowerCase().contains("trent") || true) {
+            if(strPath.toLowerCase().contains("trent") || strPath.toLowerCase().contains("portland") || false) {
                 i.getAndIncrement();
                 landmarkNumbers.put(strPath, 999000 + i.get());
                 landmarks.add(path.getFileName().toString());

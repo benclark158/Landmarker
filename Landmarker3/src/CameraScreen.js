@@ -1,11 +1,3 @@
-/**
- * Sample React Native App
- * https://github.com/facebook/react-native
- *
- * @format
- * @flow
- */
-
 import React from "react";
 
 import InformationView from "./InformationView.js";
@@ -25,21 +17,17 @@ import {
 
 import Icon from 'react-native-vector-icons/Ionicons';
 
-import * as jpeg from 'jpeg-js';
-
 import { RNCamera } from "react-native-camera";
+
 import RNLocation from "react-native-location";
 
 import * as tf from '@tensorflow/tfjs';
-//import { fetch } from '@tensorflow/tfjs-react-native';
 
 var isHidden = true;
 
 class CameraScreen extends React.Component {
-
     constructor(props) {
         super(props);
-
         this.state = {
             isTFReady: false,
             model: null,
@@ -49,13 +37,18 @@ class CameraScreen extends React.Component {
             viewHeight: 500,
             camera: {
                 type: RNCamera.Constants.Type.back,
-                flashMode: RNCamera.Constants.FlashMode.off,
-                isFrozen: false,
+                flashMode: RNCamera.Constants.FlashMode.off
             },
             results: {
-                name: "Loading...",
-                landmarkID: "loading",
-                imagePath: "/"
+                items: {
+                    item1: "item 1!",
+                    item2: "item 2!",
+                    item3: "item 3!",
+                    item4: "item 4!",
+                    item5: "item 5!"
+                },
+                finalName: "name",
+                imagePath: "imgs"
             }
         };
     }
@@ -79,10 +72,6 @@ class CameraScreen extends React.Component {
             "hardwareBackPress",
             this.backAction
         );
-
-        if(this.state.camera.isFrozen){
-            this.camera.pausePreview();
-        }
 
         RNLocation.requestPermission({
             ios: "whenInUse",
@@ -113,19 +102,20 @@ class CameraScreen extends React.Component {
     componentWillUnmount(){
         this.backHandler.remove();
     }
-
+    
     renderCamera = () => {
         const isActive = this.props.navigation.isFocused()
-        if(isActive){
+        if(isActive == true){
             return(
                 <RNCamera
                     ref={ref => {
                         this.camera = ref;
                     }}
-                    style={styles.cameraStl}
+                    style={styles.camera}
                     type={this.state.camera.type}
                     flashMode={this.state.camera.flashMode}
                     captureAudio={false}
+                    playSoundOnCapture={false}
                 />
             );
         } else {
@@ -181,10 +171,7 @@ class CameraScreen extends React.Component {
                 </TouchableOpacity>
             </View>
             <Image source={this.state.imagePath} />
-            <InformationView 
-                title={this.state.results.name}
-                landmarkID={this.state.results.landmarkID}
-                />
+            <InformationView />
         </Animated.View>
         </>
     
@@ -207,11 +194,6 @@ class CameraScreen extends React.Component {
         if (isHidden) {
             toValue = size;
             this.camera.resumePreview();
-            this.setState({
-                camera: {
-                    isFrozen: false,
-                }
-            })
         }
 
         //This will animate the transalteY of the subview between 0 & 100 depending on its current state
@@ -226,17 +208,9 @@ class CameraScreen extends React.Component {
     }
 
     takePicture = async () => {
-        this.setState({
-            results:{
-                name: "Loading...",
-                landmarkID: "loading"
-            }
-        });
-
         var ready = this.state.isTFReady;
 
         console.log(ready);
-        console.log(this.state.results.name)
 
         const model = this.state.model;
 
@@ -269,14 +243,7 @@ class CameraScreen extends React.Component {
             longitude = latestLocation["longitude"];
         });
 
-        
         if (this.camera) {
-
-            this.setState({
-                camera: {
-                    isFrozen: true
-                }
-            })
 
             this.toggleSubview();
 
@@ -288,7 +255,6 @@ class CameraScreen extends React.Component {
             console.log(latitude + " : " + longitude);
             console.log(imagePath);
 
-
             /*
             await ImageResizer.createResizedImage(imagePathBig, 224, 224, 'JPEG', 10, 0, "data/user/0/com.tempinterfaces/cache/Camera/smaller").then((response) => {
                         // response.uri is the URI of the new image that can now be displayed, uploaded...
@@ -296,38 +262,25 @@ class CameraScreen extends React.Component {
                         // response.name is the name of the new image with the extension
                         // response.size is the size of the new image
             console.log('test :-' + response.uri);
-
             this.setState({
                 responseURI: response.uri,
             });
-
             }).catch((err) => {
                 // Oops, something went wrong. Check that the filename is correct and
                 // inspect err to get more details.
                 console.error(err);
             });*/
 
-            //const resp = await fetch(imagePath, {}, {isBinary: true});
-            //const rawImgData = await resp.arrayBuffer();
-            //const image = decodeJpeg(rawImgData);
+            const resp = await fetch(imagePath, {}, {isBinary: true});
+            const rawImgData = await resp.arrayBuffer();
+            const image = decodeJpeg(rawImgData);
 
-            //const tensorInput = tf.Tensor([[latitude, longitude], image]);
-            //const output = model.predict(tensorInput);
+            const tensorInput = tf.Tensor([[latitude, longitude], image]);
+            const output = model.predict(tensorInput);
 
-            //console.log(output.toString())
-
-            /*
-            this.setState({
-                results:{
-                    name: "testing",
-                    landmarkID: "Nottingham Uni"
-                }
-            });
-
-            console.log(this.state.results.name)
-            */
+            console.log(output.toString())
+        
             /*var jRes = result;
-
             this.setState({
                 items: {
                     item1: jRes[0].detectedClass + ": " + jRes[0].confidenceInClass,
@@ -359,7 +312,7 @@ class CameraScreen extends React.Component {
 }
 
 const styles = StyleSheet.create({
-    cameraStl: {
+    camera: {
         flex: 1,
         width: "100%"
     },
