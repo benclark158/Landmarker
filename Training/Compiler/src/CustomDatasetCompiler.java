@@ -26,9 +26,12 @@ public class CustomDatasetCompiler {
         File datasetFile = new File(datasetLocation);
         Files.list(datasetFile.toPath()).forEach(path -> {
             //System.out.println(path.getFileName().toString());
-            i.getAndIncrement();
-            landmarkNumbers.put(path.getFileName().toString(), 999000 + i.get());
-            landmarks.add(path.getFileName().toString());
+            String strPath = path.getFileName().toString();
+            if(strPath.toLowerCase().contains("trent") || true) {
+                i.getAndIncrement();
+                landmarkNumbers.put(strPath, 999000 + i.get());
+                landmarks.add(path.getFileName().toString());
+            }
         });
 
         List<Tuple<String, String>> landmarkImgPair = new ArrayList<>();

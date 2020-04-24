@@ -84,12 +84,14 @@ def makeModel(numClasses):
   modelImg.add(dwLayer(lname='dw-1', strides=(1,1)))
   modelImg.add(pwLayer(lname='pw-1', filters=64))
 
+  #modelImg.add(layers.Dense(0.2))
   modelImg.add(dwLayer(lname='dw-2', strides=(2,2)))
   modelImg.add(pwLayer(lname='pw-2', filters=128))
 
   modelImg.add(dwLayer(lname='dw-3', strides=(1,1)))
   modelImg.add(pwLayer(lname='pw-3', filters=128))
 
+  #modelImg.add(layers.Dense(0.2))
   modelImg.add(dwLayer(lname='dw-4', strides=(2,2)))
   modelImg.add(pwLayer(lname='pw-4', filters=256))
 
@@ -103,6 +105,7 @@ def makeModel(numClasses):
     modelImg.add(dwLayer(lname='dw-' + str(7+x), strides=(1,1)))
     modelImg.add(pwLayer(lname='pw-' + str(7+x), filters=512))
 
+  #modelImg.add(layers.Dense(0.2))
   modelImg.add(dwLayer(lname='dw-12', strides=(2,2)))
   modelImg.add(pwLayer(lname='pw-12', filters=1024))
 
@@ -115,21 +118,68 @@ def makeModel(numClasses):
 
   inputGPS = models.Sequential()
   inputGPS.add(layers.InputLayer(input_shape=(2,)))
+  inputGPS.add(layers.Dense(4, activation='relu'))
+  inputGPS.add(layers.Dense(4, activation='relu'))
+  #inputGPS.add(layers.Dense(4, activation='relu'))
 
   combinedModel = layers.concatenate([inputGPS.output, modelImg.output])
 
-  x = (layers.Dense(64, activation='relu'))(combinedModel)
-  x = (layers.Dense(64, activation='relu'))(x)
+  x = (layers.Dense(512, activation='relu'))(combinedModel)
+  x = (layers.Dense(128, activation='relu'))(x)
+  x = (layers.Dense(128, activation='relu'))(x)
   x = (layers.Dense(64, activation='relu'))(x)
   x = (layers.Dense(numClasses, activation='softmax'))(x)
 
   
   model = tf.keras.Model(inputs=[inputGPS.input, modelImg.input], outputs=x)
   
-  model.summary()
+  
+  #modelImg.add(layers.Dense(512, activation='relu'))
+  #modelImg.add(layers.Dropout(0.2))
+  #modelImg.add(layers.Dense(512, activation='relu'))
+  #modelImg.add(layers.Dense(64, activation='relu'))
+  #modelImg.add(layers.Dense(numClasses))
+  #model = modelImg
+
+  #opt = tf.keras.optimizers.SGD(lr=0.001)
+  opt = tf.keras.optimizers.Adam(lr=0.001)#1e-6)
 
   model.compile(optimizer='adam',
 		loss='sparse_categorical_crossentropy',
 		metrics=['accuracy'])
 
+  model.summary()
+
   return model
+
+
+def makeSimpleModel(numClasses):
+
+  modelImg = models.Sequential()
+  modelImg.add(layers.InputLayer(input_shape=(224, 224, 3)))
+
+  #3x3 Conv
+  modelImg.add(layers.Conv2D(16, 3, padding='same', activation='relu'))
+  modelImg.add(layers.MaxPooling2D())
+  modelImg.add(layers.Conv2D(32, 3, padding='same', activation='relu'))
+  modelImg.add(layers.MaxPooling2D())
+  #modelImg.add(layers.Dropout(0.2))
+  modelImg.add(layers.Conv2D(64, 3, padding='same', activation='relu'))
+  modelImg.add(layers.MaxPooling2D())
+  #modelImg.add(layers.Conv2D(16, 3, padding='same', activation='relu'))
+  #modelImg.add(layers.MaxPooling2D())
+  #modelImg.add(layers.Conv2D(16, 3, padding='same', activation='relu'))
+  #modelImg.add(layers.Dropout(0.2))
+  modelImg.add(layers.Flatten())
+  modelImg.add(layers.Dense(512, activation='relu'))
+  modelImg.add(layers.Dense(numClasses))
+
+  modelImg.compile(optimizer='adam',
+		loss='sparse_categorical_crossentropy',
+		metrics=['accuracy'])
+
+  modelImg.summary()
+
+  return modelImg
+
+  
