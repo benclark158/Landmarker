@@ -54,7 +54,7 @@ public class Counter {
         List<Integer> landmarksOver100 = new ArrayList<>();
 
         for(Integer id : counter.keySet()){
-            if(counter.get(id) >= 250){
+            if(counter.get(id) >= 500){
                 landmarksOver100.add(id);
             }
         }

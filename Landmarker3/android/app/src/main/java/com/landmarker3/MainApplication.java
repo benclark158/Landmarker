@@ -7,6 +7,8 @@ import org.unimodules.adapters.react.ReactModuleRegistryProvider;
 import org.unimodules.core.interfaces.SingletonModule;
 import java.util.Arrays;
 
+import com.reactnativecommunity.cameraroll.CameraRollPackage;
+
 import androidx.multidex.MultiDexApplication;
 import android.content.Context;
 import com.facebook.react.PackageList;
@@ -41,6 +43,7 @@ public class MainApplication extends MultiDexApplication implements ReactApplica
                     new ModuleRegistryAdapter(mModuleRegistryProvider)
                 );
                 packages.addAll(unimodules);
+                packages.add(new TensorflowImagePackage());
 
                 return packages;
             }

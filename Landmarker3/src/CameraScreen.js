@@ -15,116 +15,55 @@ import {
     BackHandler
 } from "react-native";
 
-import Icon from 'react-native-vector-icons/Ionicons';
-
-import { RNCamera } from "react-native-camera";
-
 import RNLocation from "react-native-location";
 
-import * as tf from '@tensorflow/tfjs';
+import { Camera } from 'expo-camera';
+import * as Permissions from 'expo-permissions';
 
-var isHidden = true;
+import Icon from 'react-native-vector-icons/Ionicons';
+
+import {NativeModules} from 'react-native';
+
+var TensorflowImage = NativeModules.TensorflowImage;
 
 class CameraScreen extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            isTFReady: false,
-            model: null,
-            responseURI: "",
+            hasCamPermission: false,
+            hasRollPermission: false,
+            cameraType: Camera.Constants.Type.back,
             bounceValue: new Animated.Value(500), //This is the initial position of the subview
-            buttonText: "Show Subview",
-            viewHeight: 500,
-            camera: {
-                type: RNCamera.Constants.Type.back,
-                flashMode: RNCamera.Constants.FlashMode.off
-            },
-            results: {
-                items: {
-                    item1: "item 1!",
-                    item2: "item 2!",
-                    item3: "item 3!",
-                    item4: "item 4!",
-                    item5: "item 5!"
-                },
-                finalName: "name",
-                imagePath: "imgs"
-            }
+            isHidden: true,
+            imageUri: "",
         };
     }
 
-    backAction = () => {
-        if(this.props.navigation.isFocused()){
-            if(isHidden){
-                BackHandler.exitApp();
-                return true;
-            } else {
-                this.toggleSubview();
-                return true;
-            }
-        } else {
-            return false;
-        }
-    }
-
-    async componentDidMount(){
-        this.backHandler = BackHandler.addEventListener(
-            "hardwareBackPress",
-            this.backAction
-        );
-
-        RNLocation.requestPermission({
-            ios: "whenInUse",
-            android: {
-              detail: "fine",
-              rationale: {
-                title: "Location permission",
-                message: "We use your location to demo the library",
-                buttonPositive: "OK",
-                buttonNegative: "Cancel"
-              }
-            }
-        });
-
-        await tf.ready();
-
-        this.setState({
-            isTFReady: true,
-        });
-
-        //const model = await tf.loadLayersModel('localstorage://model-1,json');
-
-        //this.setState({
-        //    model: model,
-        //});
-    }
-
-    componentWillUnmount(){
-        this.backHandler.remove();
-    }
-    
     renderCamera = () => {
+        const { hasCamPermission } = this.state
         const isActive = this.props.navigation.isFocused()
-        if(isActive == true){
-            return(
-                <RNCamera
-                    ref={ref => {
-                        this.camera = ref;
-                    }}
-                    style={styles.camera}
-                    type={this.state.camera.type}
-                    flashMode={this.state.camera.flashMode}
-                    captureAudio={false}
-                    playSoundOnCapture={false}
-                />
-            );
+
+        if (hasCamPermission === null || !isActive) {
+            return <View />;
+        } else if (hasCamPermission === false || !isActive) {
+            return <Text>No access to camera</Text>;
         } else {
-            return null
+            return (
+                <View style={{ flex: 1 }}>
+                    <Camera 
+                        ref={ref => {
+                            this.camera = ref;
+                        }}
+                        type={Camera.Constants.Type.back}
+                        style={{ flex: 1 }}
+                    />
+                </View>
+            );
         }
-    };
+    }
 
     render() {
-        var cView = this.renderCamera();
+        var cameraView = this.renderCamera();
 
         var screen = <>
         <View style={styles.buttonContainer}>
@@ -170,49 +109,19 @@ class CameraScreen extends React.Component {
                     <Text style={styles.subViewText}>Close</Text>
                 </TouchableOpacity>
             </View>
-            <Image source={this.state.imagePath} />
+            
             <InformationView />
         </Animated.View>
         </>
-    
-        return [cView, screen];
-    
-    }
 
-    toggleSubview() {
-        isHidden = !isHidden;
+        //<Image source={this.state.imagePath} /> <- what is this for?
 
-        var size = Dimensions.get("window").height * 0.7;
-
-        this.setState({
-            buttonText: !isHidden ? "Show Subview" : "Hide Subview",
-            viewHeight: size
-        });
-
-        var toValue = 0;
-
-        if (isHidden) {
-            toValue = size;
-            this.camera.resumePreview();
-        }
-
-        //This will animate the transalteY of the subview between 0 & 100 depending on its current state
-        //100 comes from the style below, which is the height of the subview.
-        Animated.spring(this.state.bounceValue, {
-            toValue: toValue,
-            velocity: 6.0,
-            tension: 2.0,
-            friction: 8.0,
-            useNativeDriver: true,
-        }).start();
+        return [cameraView, screen];
     }
 
     takePicture = async () => {
-        var ready = this.state.isTFReady;
 
-        console.log(ready);
-
-        const model = this.state.model;
+        //Get location of phone!
 
         RNLocation.configure({
             distanceFilter: 50, // Meters
@@ -233,7 +142,7 @@ class CameraScreen extends React.Component {
             pausesLocationUpdatesAutomatically: false,
             showsBackgroundLocationIndicator: false,
         });
-
+/*
         var latitude;
         var longitude;
 
@@ -242,70 +151,103 @@ class CameraScreen extends React.Component {
             latitude = latestLocation["latitude"];
             longitude = latestLocation["longitude"];
         });
+*/
+        //take photo
 
         if (this.camera) {
 
             this.toggleSubview();
 
-            var options = { quality: 0.0001, base64: false, fixOrientation: true, pauseAfterCapture: true, width: 244};
+            var options = { quality: 1, base64: false, pauseAfterCapture: true};
             var data = await this.camera.takePictureAsync(options);
-
-            var imagePath = data.uri;
             
-            console.log(latitude + " : " + longitude);
-            console.log(imagePath);
-
-            /*
-            await ImageResizer.createResizedImage(imagePathBig, 224, 224, 'JPEG', 10, 0, "data/user/0/com.tempinterfaces/cache/Camera/smaller").then((response) => {
-                        // response.uri is the URI of the new image that can now be displayed, uploaded...
-                        // response.path is the path of the new image
-                        // response.name is the name of the new image with the extension
-                        // response.size is the size of the new image
-            console.log('test :-' + response.uri);
+            this.camera.pausePreview();
+            
             this.setState({
-                responseURI: response.uri,
-            });
-            }).catch((err) => {
-                // Oops, something went wrong. Check that the filename is correct and
-                // inspect err to get more details.
-                console.error(err);
-            });*/
+                imageUri: data.uri,
+            })
 
-            const resp = await fetch(imagePath, {}, {isBinary: true});
-            const rawImgData = await resp.arrayBuffer();
-            const image = decodeJpeg(rawImgData);
-
-            const tensorInput = tf.Tensor([[latitude, longitude], image]);
-            const output = model.predict(tensorInput);
-
-            console.log(output.toString())
-        
-            /*var jRes = result;
-            this.setState({
-                items: {
-                    item1: jRes[0].detectedClass + ": " + jRes[0].confidenceInClass,
-                    item2: jRes[1].detectedClass + ": " + jRes[1].confidenceInClass,
-                    item3: jRes[2].detectedClass + ": " + jRes[2].confidenceInClass,
-                    item4: jRes[3].detectedClass + ": " + jRes[3].confidenceInClass,
-                    item5: jRes[4].detectedClass + ": " + jRes[4].confidenceInClass
-                }
-            });*/
+            await TensorflowImage.classify("final_model.tflite", data.uri, 52.936593, -1.195524,
+                (err) => {console.log(err)},
+                (msg) => {
+                    console.log(msg)
+                }); 
         }
-    };
+    }
+
+    toggleSubview() {
+        var hiddenVal = !this.state.isHidden;
+        this.setState({
+            isHidden: hiddenVal,
+        });
+
+        var size = Dimensions.get("window").height * 0.7;
+
+        this.setState({
+            buttonText: !hiddenVal ? "Show Subview" : "Hide Subview",
+            viewHeight: size
+        });
+
+        var toValue = 0;
+
+        if (hiddenVal) {
+            toValue = size;
+            this.camera.resumePreview();
+        }
+
+        //This will animate the transalteY of the subview between 0 & 100 depending on its current state
+        //100 comes from the style below, which is the height of the subview.
+        Animated.spring(this.state.bounceValue, {
+            toValue: toValue,
+            velocity: 6.0,
+            tension: 2.0,
+            friction: 8.0,
+            useNativeDriver: true,
+        }).start();
+    }
+
+    async componentDidMount() {
+        const { status } = await Permissions.askAsync(Permissions.CAMERA, Permissions.CAMERA_ROLL);
+        //const { camRollStatus } = await Permissions.askAsync(Permissions.CAMERA_ROLL);
+        this.setState({ 
+            hasCamPermission: status === 'granted',
+            //hasRollPermission: camRollStatus === 'granted',
+        });
+
+        //register back handler!
+        this.backHandler = BackHandler.addEventListener(
+            "hardwareBackPress",
+            this.backAction
+        );
+    }
+
+    componentWillUnmount(){
+        this.backHandler.remove();
+    }
+
+    backAction = () => {
+        if(this.props.navigation.isFocused()){
+            if(this.state.isHidden){
+                BackHandler.exitApp();
+                return true;
+            } else {
+                this.toggleSubview();
+                return true;
+            }
+        } else {
+            return false;
+        }
+    }
 
     rotateCamera = () => {
-        console.log(this.camera.type);
-        if (this.state.camera.type == RNCamera.Constants.Type.front) {
+        console.log(this.state.cameraType);
+        if (this.state.cameraType == Camera.Constants.Type.front) {
             this.setState({
-                camera: {
-                    type: RNCamera.Constants.Type.back
-                }
+               cameraType: Camera.Constants.Type.back 
             });
         } else {
             this.setState({
-                camera: {
-                    type: RNCamera.Constants.Type.front
-                }
+                cameraType: Camera.Constants.Type.front
             });
         }
     };

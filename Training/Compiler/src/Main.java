@@ -40,21 +40,21 @@ public class Main {
 
         //CustomDatasetCompiler comp = new CustomDatasetCompiler();
         //comp.start();
+/*
+        Counter count = new Counter();
+        count.run();
 
+        MapLandmarks map = new MapLandmarks();
+        map.run();*/
 
-        //Counter count = new Counter();
-        //count.run();
-
-        //MapLandmarks map = new MapLandmarks();
-        //map.run();
-
-        FormatAll resize = new FormatAll();
-        resize.run();
+        //FormatAll resize = new FormatAll();
+        //resize.run();
 
         //BreakApart bap = new BreakApart();
         //bap.run();
 
-
+        GatherData gather = new GatherData();
+        gather.run();
 
         //LandmarkDataComplier data = new LandmarkDataComplier();
         //data.run();

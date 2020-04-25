@@ -25,14 +25,14 @@ public class CustomDatasetCompiler {
 
         File datasetFile = new File(datasetLocation);
         Files.list(datasetFile.toPath()).forEach(path -> {
-            //System.out.println(path.getFileName().toString());
-            String strPath = path.getFileName().toString();
-            if(strPath.toLowerCase().contains("trent") || strPath.toLowerCase().contains("portland") || false) {
-                i.getAndIncrement();
-                landmarkNumbers.put(strPath, 999000 + i.get());
-                landmarks.add(path.getFileName().toString());
-            }
-        });
+                    //System.out.println(path.getFileName().toString());
+                    String strPath = path.getFileName().toString();
+                    if (strPath.toLowerCase().contains("trent") || strPath.toLowerCase().contains("portland") || false) {
+                        i.getAndIncrement();
+                        landmarkNumbers.put(strPath, 999000 + i.get());
+                        landmarks.add(path.getFileName().toString());
+                    }
+                });
 
         List<Tuple<String, String>> landmarkImgPair = new ArrayList<>();
         HashMap<String, Tuple<Float, Float>> landmarkLocation = new HashMap<>();
