@@ -8,6 +8,27 @@ import java.util.List;
 
 public class Values {
 
+    public static final String PORTLAND_INFO = "Portland Building was originally constructed in the 1950s, in the neo-classical style, remodelled and refurbished in the early 1990s and extended to the rear in 2003, by Michael Hopkins. The building is home to the University of Nottingham's Student Union as well as numerous societies and activities. Here you can find the several university shops, such as Spar, Portland Coffee and Mooch. The building also houses a large number of student ran societies and you will often find activities such as dance (NUDance), TV production (NSTV) and much more taking place here.";
+    public static final String TRENT_INFO = "The iconic Trent Building makes an impact with its stunning architecture and views across Highfield's boating lake and a large lawned area. The Trent Building is also home to the School of English, located on floors A and C. The Trent Reception and Visitors' Centre is located in the main entrance area of the Trent Building.  It is open to all visitors and provides information including campus maps, prospectuses, self-guided tour booklets and a range of information about the University and the City.";
+    public static final String UNKNOWN_INFORMATION = "A landmark near you could not be identified in accordance with your photo. Sorry for the inconvenience";
+
+    public static HashMap<String, Boolean> getUnavailableWebsites(){
+        HashMap<String, Boolean> map = new HashMap<>();
+
+        map.put("Portland_Building_(Nottingham)", true);
+
+        return map;
+    }
+
+    public static HashMap<String, String> getInfo(){
+        HashMap<String, String> map = new HashMap<>();
+
+        map.put("Portland_Building_(Nottingham)", PORTLAND_INFO);
+        map.put("Trent_Building", TRENT_INFO);
+
+        return map;
+    }
+
     public static List<String> makeLabels(){
         List<String> labels = new LinkedList<>();
 
@@ -93,8 +114,8 @@ public class Values {
         labels.add("Caerphilly_Castle"); //http://commons.wikimedia.org/wiki/Category:Caerphilly_Castle
         labels.add("Mount_Jerome_Cemetery"); //http://commons.wikimedia.org/wiki/Category:Mount_Jerome_Cemetery
         labels.add("Kennet_and_Avon_Canal"); //http://commons.wikimedia.org/wiki/Category:Kennet_and_Avon_Canal
-        labels.add("Trent Building"); //
-        labels.add("Portland Building"); //
+        labels.add("Trent_Building"); // Works with Wiki
+        labels.add("Portland_Building_(Nottingham)"); //
 
         //=CONCAT("labels.add('",D67,"'); //", C67)
 
@@ -186,8 +207,8 @@ public class Values {
         map.put("Caerphilly_Castle", new LatLng(51.576054,-3.220333));
         map.put("Mount_Jerome_Cemetery", new LatLng(53.324696,-6.284166));
         map.put("Kennet_and_Avon_Canal", new LatLng(51.375,-2.3022));
-        map.put("Trent Building", new LatLng(52.93692,-1.196088));
-        map.put("Portland Building", new LatLng(52.93827,-1.194443));
+        map.put("Trent_Building", new LatLng(52.93692,-1.196088));
+        map.put("Portland_Building_(Nottingham)", new LatLng(52.93827,-1.194443));
 
         //=CONCAT("map.put('", D67, ", new LatLng(", E67,",",F67,"));")
 

@@ -14,7 +14,8 @@ public class BasePackageList {
         new expo.modules.imageloader.ImageLoaderPackage(),
         new expo.modules.imagemanipulator.ImageManipulatorPackage(),
         new expo.modules.medialibrary.MediaLibraryPackage(),
-        new expo.modules.permissions.PermissionsPackage()
+        new expo.modules.permissions.PermissionsPackage(),
+        new expo.modules.sqlite.SQLitePackage()
     );
   }
 }

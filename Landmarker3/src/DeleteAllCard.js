@@ -24,27 +24,18 @@ import {
 import { RNCamera } from "react-native-camera";
 import { ScrollView } from "react-native-gesture-handler";
         
-var isHidden = true;
-
-export default function HistoryCard(props) {
+export default function DeleteAllCard(props) {
         return ( 
         <>
-            <TouchableOpacity>
+            <TouchableOpacity onPress={props.deleteAll}>
                 <View style={styles.container}>
                     <View style={styles.imageStack}>
-                        <Image
-                            source={{uri: props.imgUrl}}
-                            resizeMode="cover"
-                            style={styles.image}
-                        ></Image>
-                        <Text style={styles.title}>{props.title}</Text>
-                        <Text style={styles.info}>{props.info}</Text>
-                        <Text style={styles.data}>Date {"\&"} Time: {props.td}{"\n"}GPS: {props.gps}</Text>
+                        <Text style={styles.title}>Delete History</Text>
                     </View>
                 </View>
             </TouchableOpacity>
         </>
-    )
+    );
 }
 
 const styles = StyleSheet.create({
@@ -57,7 +48,7 @@ const styles = StyleSheet.create({
         flex: 1,
         borderRadius: 6,
         elevation: 3,
-        backgroundColor: '#fff',
+        backgroundColor: '#ff0000',
         shadowOffset: { width: 1, height: 1 },
         shadowColor: '#333',
         shadowOpacity: 0.3,
@@ -79,7 +70,7 @@ const styles = StyleSheet.create({
       title: {
         top: 0,
         left: 95,
-        color: "#121212",
+        color: "#fff",
         position: "absolute",
         fontWeight: 'bold',
         fontSize: 20,
@@ -106,7 +97,7 @@ const styles = StyleSheet.create({
       },
       imageStack: {
         //width: 226,
-        height: 84,
+        height: 34,
         //marginTop: 53,
         //marginLeft: 28
         marginHorizontal: 18,

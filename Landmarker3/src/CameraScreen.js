@@ -20,11 +20,15 @@ import RNLocation from "react-native-location";
 import { Camera } from 'expo-camera';
 import * as Permissions from 'expo-permissions';
 
+import * as SQLite from 'expo-sqlite';
+
 import Icon from 'react-native-vector-icons/Ionicons';
 
 import {NativeModules} from 'react-native';
 
 var TensorflowImage = NativeModules.TensorflowImage;
+
+const db = SQLite.openDatabase("db.db");
 
 class CameraScreen extends React.Component {
     constructor(props) {
@@ -36,6 +40,17 @@ class CameraScreen extends React.Component {
             bounceValue: new Animated.Value(500), //This is the initial position of the subview
             isHidden: true,
             imageUri: "",
+            result: {
+                title: "Loading...",
+                hasAdditional: false,
+                info: "",
+            },
+            dateTime: "",
+            location: {
+                latitude: 0,
+                longitude: 0,
+                accuracy: 0,
+            },
         };
     }
 
@@ -56,6 +71,7 @@ class CameraScreen extends React.Component {
                         }}
                         type={Camera.Constants.Type.back}
                         style={{ flex: 1 }}
+                        ratio={"16:9"}
                     />
                 </View>
             );
@@ -110,7 +126,11 @@ class CameraScreen extends React.Component {
                 </TouchableOpacity>
             </View>
             
-            <InformationView />
+            <InformationView 
+                title={this.state.result.title}
+                info={this.state.result.info}
+                hasAdditional={this.state.result.hasAdditional}
+            />
         </Animated.View>
         </>
 
@@ -120,59 +140,100 @@ class CameraScreen extends React.Component {
     }
 
     takePicture = async () => {
+        
+        this.getDataTime();
 
-        //Get location of phone!
+        this.camera.pausePreview();
 
-        RNLocation.configure({
-            distanceFilter: 50, // Meters
-            desiredAccuracy: {
-            ios: "best",
-            android: "balancedPowerAccuracy"
-            },
-            // Android only
-            androidProvider: "auto",
-            interval: 5000, // Milliseconds
-            fastestInterval: 500, // Milliseconds
-            maxWaitTime: 5000, // Milliseconds
-            // iOS Only
-            activityType: "other",
-            allowsBackgroundLocationUpdates: false,
-            headingFilter: 1, // Degrees
-            headingOrientation: "portrait",
-            pausesLocationUpdatesAutomatically: false,
-            showsBackgroundLocationIndicator: false,
-        });
-/*
-        var latitude;
-        var longitude;
-
-        RNLocation.getLatestLocation({ timeout: 500 }).then(latestLocation => {
-            // Use the location here
-            latitude = latestLocation["latitude"];
-            longitude = latestLocation["longitude"];
-        });
-*/
         //take photo
+
+        this.setState({
+            result: {
+                title: "",
+                hasAdditional: false,
+                info: "",
+            }
+        });
 
         if (this.camera) {
 
             this.toggleSubview();
 
+            this.camera.resumePreview();
             var options = { quality: 1, base64: false, pauseAfterCapture: true};
             var data = await this.camera.takePictureAsync(options);
-            
             this.camera.pausePreview();
             
+            var uri = data.uri;
+
             this.setState({
-                imageUri: data.uri,
+                imageUri: uri,
             })
 
-            await TensorflowImage.classify("final_model.tflite", data.uri, 52.936593, -1.195524,
+            console.log(this.state.location);
+
+            var latitude = this.state.location.latitude;
+            var longitude = this.state.location.longitude;
+            var accuracy = this.state.location.accuracy;
+
+            //Testing!
+            latitude = 51.505837;
+            longitude = -0.076322;
+            uri = "https://upload.wikimedia.org/wikipedia/commons/thumb/6/69/A_Tower-h%C3%ADd_%28The_Tower_Bridge%29_-_panoramio.jpg/1024px-A_Tower-h%C3%ADd_%28The_Tower_Bridge%29_-_panoramio.jpg"
+
+            await TensorflowImage.classify("final_model.tflite", uri, latitude, longitude, accuracy,
                 (err) => {console.log(err)},
-                (msg) => {
-                    console.log(msg)
-                }); 
+                (name, info, hasAdd, probs) => {
+                    console.log(name + ", " + probs)
+
+                    this.setState({
+                        result: {
+                            title: name,
+                            hasAdditional: hasAdd,
+                            info: info,
+                        }
+                    });
+
+                    console.log("Added to db");
+
+                    var vals = [name, uri, info, 
+                        this.state.dateTime, latitude, longitude];
+
+                    db.transaction(
+                        tx => {
+                            tx.executeSql("insert into 'places' (" + 
+                                "'name', 'uri', 'desc', 'time', 'latitude', 'longitude')" + 
+                                "values (?, ?, ?, ?, ?, ?)", vals, (_, success) => {
+                                    console.log(success);
+                                },
+                                (_, err) => {
+                                    console.log(err);
+                                });
+                            
+                            //tx.executeSql("select * from items", [], (_, { rows }) =>
+                            //    console.log(JSON.stringify(rows))
+                            //);
+                        },
+                        null,
+                        null
+                    );
+                });
         }
+    }
+
+    getDataTime() {
+        var that = this;
+        var date = new Date().getDate(); //Current Date
+        var month = new Date().getMonth() + 1; //Current Month
+        var year = new Date().getFullYear(); //Current Year
+        var hours = new Date().getHours(); //Current Hours
+        var min = new Date().getMinutes(); //Current Minutes
+
+        that.setState({
+        //Setting the value of the date time
+            dateTime:
+                date + '/' + month + '/' + year + ' ' + hours + ':' + min,
+            });
     }
 
     toggleSubview() {
@@ -214,15 +275,80 @@ class CameraScreen extends React.Component {
             //hasRollPermission: camRollStatus === 'granted',
         });
 
+
+        this.focusListener = this.props.navigation.addListener('focus', () => {
+            console.log("focus");
+            if(this.state.isHidden){
+                this.camera.pausePreview();
+            }
+        });
+        
+        this.getLocationUpdates();
+
         //register back handler!
         this.backHandler = BackHandler.addEventListener(
             "hardwareBackPress",
             this.backAction
         );
+        
+        db.transaction(tx => {
+            tx.executeSql(
+              "CREATE TABLE IF NOT EXISTS 'places' (" + 
+                "'id'	INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE," +
+                "'name'	TEXT," + 
+                "'uri'	TEXT," +
+                "'desc'	TEXT," +
+                "'time'	TEXT," +
+                "'latitude'	REAL," +
+                "'longitude'	REAL" +
+            ");",
+                [],
+                (_, result) => {
+                    //console.log("CORRECT");
+                    //console.log(result);
+                },
+                (_, err) => {console.log(err)}
+            );
+        });
+    }
+
+    getLocationUpdates(){
+
+        RNLocation.configure({
+            distanceFilter: 50, // Meters
+            desiredAccuracy: {
+            ios: "best",
+            android: "balancedPowerAccuracy"
+            },
+            // Android only
+            androidProvider: "auto",
+            interval: 5000, // Milliseconds
+            fastestInterval: 500, // Milliseconds
+            maxWaitTime: 5000, // Milliseconds
+            // iOS Only
+            activityType: "other",
+            allowsBackgroundLocationUpdates: false,
+            headingFilter: 1, // Degrees
+            headingOrientation: "portrait",
+            pausesLocationUpdatesAutomatically: false,
+            showsBackgroundLocationIndicator: false,
+        });
+        
+        this.locationUpdater = RNLocation.subscribeToLocationUpdates(locations => {
+            this.setState({
+                location:{
+                    latitude: locations[0]['latitude'],
+                    longitude: locations[0]['longitude'],
+                    accuracy: locations[0]['accuracy'],
+                }
+            });
+        });
     }
 
     componentWillUnmount(){
         this.backHandler.remove();
+        this.focusListener.remove();
+        this.locationUpdater();
     }
 
     backAction = () => {
