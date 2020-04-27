@@ -9,10 +9,8 @@ import {
     TouchableOpacity,
     View,
     Dimensions,
-    Image,
-    Button,
-    Alert,
-    BackHandler
+    BackHandler,
+    NativeModules
 } from "react-native";
 
 import RNLocation from "react-native-location";
@@ -23,8 +21,6 @@ import * as Permissions from 'expo-permissions';
 import * as SQLite from 'expo-sqlite';
 
 import Icon from 'react-native-vector-icons/Ionicons';
-
-import {NativeModules} from 'react-native';
 
 var TensorflowImage = NativeModules.TensorflowImage;
 
@@ -38,6 +34,7 @@ class CameraScreen extends React.Component {
             hasRollPermission: false,
             cameraType: Camera.Constants.Type.back,
             bounceValue: new Animated.Value(500), //This is the initial position of the subview
+            viewHeight: 0,
             isHidden: true,
             imageUri: "",
             result: {
@@ -69,7 +66,7 @@ class CameraScreen extends React.Component {
                         ref={ref => {
                             this.camera = ref;
                         }}
-                        type={Camera.Constants.Type.back}
+                        type={this.state.cameraType}
                         style={{ flex: 1 }}
                         ratio={"16:9"}
                     />
@@ -117,21 +114,36 @@ class CameraScreen extends React.Component {
                 styles.subView,
                 {
                     transform: [{ translateY: this.state.bounceValue }],
-                    height: this.state.viewHeight
+                    height: this.state.viewHeight,
                 }
             ]}>
-            <View style={styles.subViewView}>
-                <TouchableOpacity onPress={() => this.toggleSubview()}>
-                    <Text style={styles.subViewText}>Close</Text>
-                </TouchableOpacity>
-            </View>
-            
-            <InformationView 
-                title={this.state.result.title}
-                info={this.state.result.info}
-                hasAdditional={this.state.result.hasAdditional}
-            />
-        </Animated.View>
+                <TouchableOpacity
+                    style={[
+                        styles.hider, {
+                            height: this.state.viewHightOuter,
+                        }
+                    ]}
+                    onPress={() => this.toggleSubview()}
+                />
+                <View
+                    style={[
+                        styles.background, {
+                            height: this.state.viewHeightInner,
+                        }
+                    ]}>
+                    <View style={styles.subViewView}>
+                        <TouchableOpacity onPress={() => this.toggleSubview()}>
+                            <Text style={styles.subViewText}>Close</Text>
+                        </TouchableOpacity>
+                    </View>
+                    
+                    <InformationView 
+                        title={this.state.result.title}
+                        info={this.state.result.info}
+                        hasAdditional={this.state.result.hasAdditional}
+                    />
+                </View>
+            </Animated.View>
         </>
 
         //<Image source={this.state.imagePath} /> <- what is this for?
@@ -177,11 +189,11 @@ class CameraScreen extends React.Component {
             var accuracy = this.state.location.accuracy;
 
             //Testing!
-            latitude = 51.505837;
-            longitude = -0.076322;
-            uri = "https://upload.wikimedia.org/wikipedia/commons/thumb/6/69/A_Tower-h%C3%ADd_%28The_Tower_Bridge%29_-_panoramio.jpg/1024px-A_Tower-h%C3%ADd_%28The_Tower_Bridge%29_-_panoramio.jpg"
+            latitude = 51.505129;
+            longitude = -0.078393;
+            //uri = "https://upload.wikimedia.org/wikipedia/commons/thumb/6/69/A_Tower-h%C3%ADd_%28The_Tower_Bridge%29_-_panoramio.jpg/1024px-A_Tower-h%C3%ADd_%28The_Tower_Bridge%29_-_panoramio.jpg"
 
-            await TensorflowImage.classify("final_model.tflite", uri, latitude, longitude, accuracy,
+            await TensorflowImage.classify("final_model_v1.tflite", uri, latitude, longitude, accuracy,
                 (err) => {console.log(err)},
                 (name, info, hasAdd, probs) => {
                     console.log(name + ", " + probs)
@@ -242,11 +254,16 @@ class CameraScreen extends React.Component {
             isHidden: hiddenVal,
         });
 
-        var size = Dimensions.get("window").height * 0.7;
+        var size = Dimensions.get("window").height;
+        var innerSize = size * 0.7;
+        var outerSize = size * 0.3;
+        
 
         this.setState({
             buttonText: !hiddenVal ? "Show Subview" : "Hide Subview",
-            viewHeight: size
+            viewHeight: size,
+            viewHeightInner: innerSize,
+            viewHightOuter: outerSize,
         });
 
         var toValue = 0;
@@ -390,7 +407,7 @@ const styles = StyleSheet.create({
         left: 0,
         right: 0,
         zIndex: 1000,
-        backgroundColor: "#fff",
+        backgroundColor: 'rgba(0,0,0,0)',
         borderRadius: 20,
         shadowOffset: {width: 5, height: 5},
         shadowOpacity: 0.5,
@@ -416,6 +433,15 @@ const styles = StyleSheet.create({
         color: "#fff",
         textAlign: "right",
         fontSize: 20,
+    },
+    hider: {
+        backgroundColor: "#000",
+        opacity: 0.0,
+    },
+    background: {
+        backgroundColor: "#fff",
+        borderTopRightRadius: 20,
+        borderTopLeftRadius: 20,
     },
     capture: {
         flex: 0,

@@ -15,7 +15,12 @@ export default function InformationView(props) {
     var code = "<body style=\"width:100%\"><p>Hello, this is some information.</p></iframe></body>";
     //props.title
 
-    var name = props.title.replace(/_/, " ");
+    var name = props.title.replace(/_/g, " ");
+    var pleaseWaitTxt = "Please hold the camera still while we take the photo";
+
+    if(props.pw != null && props.pw != ""){
+        pleaseWaitTxt = props.pw;
+    }
 
     if(props.hasAdditional && props.info != ""){
         return (
@@ -75,7 +80,7 @@ export default function InformationView(props) {
                     Loading Results
                 </Text>
                 <Text style={{width: "100%", textAlign: "center", bottom: 0, paddingTop: "0%"}}>
-                    Please hold the camera still while we take the photo
+                    {pleaseWaitTxt}
                 </Text>
             </View>
             </>

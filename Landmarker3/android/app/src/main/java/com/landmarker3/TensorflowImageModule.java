@@ -5,6 +5,7 @@ import android.content.res.AssetFileDescriptor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
+import android.telecom.Call;
 
 import androidx.annotation.NonNull;
 
@@ -14,6 +15,8 @@ import com.facebook.react.bridge.ReactMethod;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.maps.android.SphericalUtil;
 
+import org.json.JSONArray;
+import org.json.JSONObject;
 import org.tensorflow.lite.DataType;
 import org.tensorflow.lite.Interpreter;
 import org.tensorflow.lite.support.common.TensorOperator;
@@ -114,7 +117,7 @@ public class TensorflowImageModule extends ReactContextBaseJavaModule {
                 return;
             }
 
-            float maxDistance = Collections.max(distances.values());
+            float maxDistance = Collections.max(distances.values()) * 2.0f;
 
             Map<String, Float> newProbs = new HashMap<>();
 
@@ -156,7 +159,42 @@ public class TensorflowImageModule extends ReactContextBaseJavaModule {
 
         } catch (Exception e) {
             e.printStackTrace();
-            errorCallback.invoke("error: "  + e.getMessage());
+            errorCallback.invoke("Classify: "  + e.getMessage());
+        }
+    }
+
+    @ReactMethod
+    public void getInfo(String landmark, Callback success, Callback err){
+        try{
+
+            landmark = landmark.replace(" ", "_");
+
+            boolean hasAdditional = additional(landmark);
+            String info = getInfo(landmark);
+
+            success.invoke(landmark, info, hasAdditional, "");
+        } catch (Exception e){
+            err.invoke("GetInfo error: " + e.getMessage());
+        }
+    }
+
+    @ReactMethod
+    public void getLandmarkGPS(Callback success, Callback err){
+        try {
+            Map<String, LatLng> points = Values.getCoords();
+
+            JSONArray arr = new JSONArray();
+
+            for (String name : points.keySet()) {
+                JSONObject obj = new JSONObject();
+                obj.put("name", name);
+                obj.put("latitude", points.get(name).latitude);
+                obj.put("longitude", points.get(name).longitude);
+                arr.put(obj);
+            }
+            success.invoke(arr.toString());
+        } catch (Exception e){
+            err.invoke("GetLandmarkGPS error: " + e.getMessage());
         }
     }
 
@@ -267,7 +305,7 @@ public class TensorflowImageModule extends ReactContextBaseJavaModule {
         return bm;
     }
 
-    public Bitmap getResizedBitmap(Bitmap bm, int newWidth, int newHeight) {
+    private Bitmap getResizedBitmap(Bitmap bm, int newWidth, int newHeight) {
         int width = bm.getWidth();
         int height = bm.getHeight();
         float scaleWidth = ((float) newWidth) / width;
