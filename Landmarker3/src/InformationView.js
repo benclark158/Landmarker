@@ -7,7 +7,6 @@ import {
     ActivityIndicator,
 } from 'react-native';
 
-import AutoHeightWebView from 'react-native-autoheight-webview'
 import WebView from 'react-native-webview'
 import { ScrollView } from 'react-native-gesture-handler';
 
