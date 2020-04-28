@@ -212,8 +212,8 @@ public class TensorflowImageModule extends ReactContextBaseJavaModule {
         if(val == null){
             return true;
         }
-        if(val instanceof Boolean && (boolean) val){
-            return (boolean) val;
+        if((boolean) val){
+            return false;
         }
 
         return false;

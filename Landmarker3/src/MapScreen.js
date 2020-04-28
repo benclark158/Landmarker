@@ -50,6 +50,7 @@ class MapScreen extends React.Component {
             viewHeight: 0,
             viewHeightInner: 0,
             viewHightOuter: 0,
+            webheight: 1000,
         };
     }
 
@@ -133,11 +134,31 @@ class MapScreen extends React.Component {
                         info={this.state.result.info}
                         hasAdditional={this.state.result.hasAdditional}
                         pw={" "}
+                        webheight={this.state.webheight}
+                        webFunction={event => {
+                            this.setState({
+                                webheight: parseInt(event.nativeEvent.data),
+                            });
+                        }}
+                        refFunction={ref => (this.webref = ref)}
+                        navigation={this.handleNavigationChange}
+                        isHidden={this.state.isHidden}
                     />
                 </View>
             </Animated.View>
         </>
         return screen;
+    }
+
+    handleNavigationChange = newNavState => {
+        var runFirst = `
+            setInterval(function(){
+                window.ReactNativeWebView.postMessage(document.documentElement.scrollHeight);
+            }, 2000);
+            true; // note: this is required, or you'll sometimes get silent failures
+            `;
+
+        this.webref.injectJavaScript(runFirst);
     }
 
     calloutPress(name){
@@ -153,15 +174,11 @@ class MapScreen extends React.Component {
                     info: inf,
                     hasAdditional: additional,
                 },
-            })
-
+            });
         },
         (err) => {
             console.log(err);
-        })
-
-        console.log("i was pressed - " + id);
-        
+        })        
     }
 
     toggleSubview() {
@@ -266,7 +283,7 @@ class MapScreen extends React.Component {
                         latitude: obj['latitude'],
                         longitude: obj['longitude'],
                     },
-                    desc: "Click for more information!"
+                    desc: "Tap for more information!"
                 }
             }
             this.setState({

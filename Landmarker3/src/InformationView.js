@@ -7,7 +7,8 @@ import {
     ActivityIndicator,
 } from 'react-native';
 
-import WebView from 'react-native-webview';
+import AutoHeightWebView from 'react-native-autoheight-webview'
+import WebView from 'react-native-webview'
 import { ScrollView } from 'react-native-gesture-handler';
 
 export default function InformationView(props) {
@@ -22,10 +23,14 @@ export default function InformationView(props) {
         pleaseWaitTxt = props.pw;
     }
 
+    if(props.isHidden){
+        return <></>
+    }
+
     if(props.hasAdditional && props.info != ""){
         return (
             <>  
-            <View style={styles.container}>
+            <ScrollView style={styles.container}>
                 <Text style={styles.heading}>
                     {name}
                 </Text>
@@ -37,38 +42,68 @@ export default function InformationView(props) {
                 </Text>
                 <View style={styles.infoContainer}> 
                     <WebView 
-                        style={styles.extraInfo}
-                        source={{ uri: "https://en.wikipedia.org/wiki/" + props.title  }} />
+                        ref={props.refFunction}
+                        style={[
+                            styles.extraInfo, {
+                                flex: 0,
+                                height: props.webheight,
+                            }
+                        ]}
+                        //onSizeUpdated={props.webFunction}
+                        automaticallyAdjustContentInsets={false}
+                        scrollEnabled={false}
+                        source={{ uri: "https://en.wikipedia.org/wiki/" + props.title  }}
+                        onMessage={props.webFunction}
+                        onNavigationStateChange={props.navigation}
+                        javaScriptEnabled={true}
+                        domStorageEnabled={true}
+                        useWebKit={true}
+                    />
                 </View>
-            </View>
+            </ScrollView>
             </>
         );
     } else if(!props.hasAdditional && props.info != ""){
         return (
             <>  
-            <View style={styles.container}>
+            <ScrollView style={styles.container}>
                 <Text style={styles.heading}>
                     {name}
                 </Text>
                 <Text style={{paddingLeft: "5%",paddingRight: "5%",}}>
                     {props.info}
                 </Text>
-            </View>
+            </ScrollView>
             </>
         );
     } else if(props.hasAdditional && props.info == ""){
         return (
             <>  
-            <View style={styles.container}>
+            <ScrollView style={styles.container}>
                 <Text style={styles.heading}>
                     {name}
                 </Text>
                 <View style={styles.infoContainer}> 
                     <WebView 
-                        style={styles.extraInfo}
-                        source={{ uri: "https://en.wikipedia.org/wiki/" + props.title  }} />
+                        ref={props.refFunction}
+                        style={[
+                            styles.extraInfo, {
+                                flex: 0,
+                                height: props.webheight,
+                            }
+                        ]}
+                        //onSizeUpdated={props.webFunction}
+                        automaticallyAdjustContentInsets={false}
+                        scrollEnabled={false}
+                        source={{ uri: "https://en.wikipedia.org/wiki/" + props.title  }}
+                        onMessage={props.webFunction}
+                        onNavigationStateChange={props.navigation}
+                        javaScriptEnabled={true}
+                        domStorageEnabled={true}
+                        useWebKit={true}
+                    />
                 </View>
-            </View>
+            </ScrollView>
             </>
         );
     } else {
@@ -91,7 +126,7 @@ export default function InformationView(props) {
 const styles = StyleSheet.create({
     container: {
       flex: 1,
-      width: '100%',
+      height: '100%',
       backgroundColor: 'rgba(0,0,0,0)',
       padding: '2%',
       width: "100%",

@@ -56,7 +56,7 @@ public class Values {
         labels.add("Pilkington_Library"); //http://commons.wikimedia.org/wiki/Category:Pilkington_Library
         labels.add("Cambridge_University_Botanic_Garden"); //http://commons.wikimedia.org/wiki/Category:Cambridge_University_Botanic_Garden
         labels.add("Exe_Estuary"); //http://commons.wikimedia.org/wiki/Category:Exe_Estuary
-        labels.add("Victoria_Memorial_London"); //http://commons.wikimedia.org/wiki/Category:Victoria_Memorial,_London
+        labels.add("Victoria_Memorial,_London"); //http://commons.wikimedia.org/wiki/Category:Victoria_Memorial,_London
         labels.add("Erddig"); //http://commons.wikimedia.org/wiki/Category:Erddig
         labels.add("Barrow_Hill_Engine_Shed"); //http://commons.wikimedia.org/wiki/Category:Barrow_Hill_Engine_Shed
         labels.add("River_Exe"); //http://commons.wikimedia.org/wiki/Category:River_Exe
@@ -149,7 +149,7 @@ public class Values {
         map.put("Pilkington_Library", new LatLng(52.763,-1.237));
         map.put("Cambridge_University_Botanic_Garden", new LatLng(52.1938,0.1279));
         map.put("Exe_Estuary", new LatLng(50.63,-3.43));
-        map.put("Victoria_Memorial_London", new LatLng(51.50183,-0.14064));
+        map.put("Victoria_Memorial,_London", new LatLng(51.50183,-0.14064));
         map.put("Erddig", new LatLng(53.0272,-3.0066));
         map.put("Barrow_Hill_Engine_Shed", new LatLng(53.274498,-1.381821));
         map.put("River_Exe", new LatLng(50.6147,-3.425));

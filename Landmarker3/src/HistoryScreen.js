@@ -80,11 +80,9 @@ class HistoryScreen extends React.Component {
             },{ 
                 text: "Yes, delete it all", 
                 onPress: () => {
-                    console.log("OK Pressed");
                     db.transaction(
                         tx => {
                             tx.executeSql("DELETE FROM 'places';", [], (_, success) => {
-                                    console.log(success);
                                     this.setState({
                                         history: [],
                                     });

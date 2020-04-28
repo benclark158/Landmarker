@@ -141,6 +141,16 @@ class CameraScreen extends React.Component {
                         title={this.state.result.title}
                         info={this.state.result.info}
                         hasAdditional={this.state.result.hasAdditional}
+                        pw={" "}
+                        webheight={this.state.webheight}
+                        webFunction={event => {
+                            this.setState({
+                                webheight: parseInt(event.nativeEvent.data),
+                            });
+                        }}
+                        refFunction={ref => (this.webref = ref)}
+                        navigation={this.handleNavigationChange}
+                        isHidden={this.state.isHidden}
                     />
                 </View>
             </Animated.View>
@@ -149,6 +159,17 @@ class CameraScreen extends React.Component {
         //<Image source={this.state.imagePath} /> <- what is this for?
 
         return [cameraView, screen];
+    }
+
+    handleNavigationChange = newNavState => {
+        var runFirst = `
+            setInterval(function(){
+                window.ReactNativeWebView.postMessage(document.documentElement.scrollHeight);
+            }, 2000);
+            true; // note: this is required, or you'll sometimes get silent failures
+            `;
+
+        this.webref.injectJavaScript(runFirst);
     }
 
     takePicture = async () => {
@@ -182,22 +203,20 @@ class CameraScreen extends React.Component {
                 imageUri: uri,
             })
 
-            console.log(this.state.location);
+            //console.log(this.state.location);
 
             var latitude = this.state.location.latitude;
             var longitude = this.state.location.longitude;
             var accuracy = this.state.location.accuracy;
 
             //Testing!
-            latitude = 51.505129;
-            longitude = -0.078393;
+            //latitude = 51.505129;
+            //longitude = -0.078393;
             //uri = "https://upload.wikimedia.org/wikipedia/commons/thumb/6/69/A_Tower-h%C3%ADd_%28The_Tower_Bridge%29_-_panoramio.jpg/1024px-A_Tower-h%C3%ADd_%28The_Tower_Bridge%29_-_panoramio.jpg"
 
             await TensorflowImage.classify("final_model_v1.tflite", uri, latitude, longitude, accuracy,
                 (err) => {console.log(err)},
                 (name, info, hasAdd, probs) => {
-                    console.log(name + ", " + probs)
-
                     this.setState({
                         result: {
                             title: name,
@@ -205,8 +224,6 @@ class CameraScreen extends React.Component {
                             info: info,
                         }
                     });
-
-                    console.log("Added to db");
 
                     var vals = [name, uri, info, 
                         this.state.dateTime, latitude, longitude];
@@ -216,7 +233,7 @@ class CameraScreen extends React.Component {
                             tx.executeSql("insert into 'places' (" + 
                                 "'name', 'uri', 'desc', 'time', 'latitude', 'longitude')" + 
                                 "values (?, ?, ?, ?, ?, ?)", vals, (_, success) => {
-                                    console.log(success);
+                                    //console.log(success);
                                 },
                                 (_, err) => {
                                     console.log(err);
@@ -294,7 +311,7 @@ class CameraScreen extends React.Component {
 
 
         this.focusListener = this.props.navigation.addListener('focus', () => {
-            console.log("focus");
+            //console.log("focus");
             if(this.state.isHidden){
                 this.camera.pausePreview();
             }
@@ -383,7 +400,7 @@ class CameraScreen extends React.Component {
     }
 
     rotateCamera = () => {
-        console.log(this.state.cameraType);
+        //console.log(this.state.cameraType);
         if (this.state.cameraType == Camera.Constants.Type.front) {
             this.setState({
                cameraType: Camera.Constants.Type.back 
