@@ -118,10 +118,13 @@ def makeModel(numClasses):
 
   inputGPS = models.Sequential()
   inputGPS.add(layers.InputLayer(input_shape=(2,)))
+  inputGPS.add(layers.Dense(4, activation='relu'))
+  inputGPS.add(layers.Dense(4, activation='relu'))
+  inputGPS.add(layers.Dense(4, activation='relu'))
 
   combinedModel = layers.concatenate([inputGPS.output, modelImg.output])
 
-  x = (layers.Dense(512, activation='relu'))(modelImg.output)
+  x = (layers.Dense(512, activation='relu'))(combinedModel)
   x = (layers.Dense(128, activation='relu'))(x)
   x = (layers.Dense(128, activation='relu'))(x)
   x = (layers.Dense(64, activation='relu'))(x)
@@ -132,16 +135,16 @@ def makeModel(numClasses):
   
   
   #modelImg.add(layers.Dense(512, activation='relu'))
-  #modelImg.add(layers.Dropout(0.2))
-  #modelImg.add(layers.Dense(512, activation='relu'))
+  #modelImg.add(layers.Dense(128, activation='relu'))
+  #modelImg.add(layers.Dense(128, activation='relu'))
   #modelImg.add(layers.Dense(64, activation='relu'))
-  #modelImg.add(layers.Dense(numClasses))
+  #modelImg.add(layers.Dense(numClasses, activation='softmax'))
   #model = modelImg
 
   #opt = tf.keras.optimizers.SGD(lr=0.001)
-  opt = tf.keras.optimizers.Adam(lr=0.0001)#1e-6)
+  opt = tf.keras.optimizers.Adam(lr=0.001)#1e-6)
 
-  model.compile(optimizer=opt,
+  model.compile(optimizer='adam',
 		loss='sparse_categorical_crossentropy',
 		metrics=['accuracy'])
 
