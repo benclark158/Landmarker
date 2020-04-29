@@ -8,13 +8,21 @@
 
 import React from "react";
 
+import InformationView from "./InformationView.js";
+
 import {
     StyleSheet,
     Animated,
     Text,
     TouchableOpacity,
     View,
+    Dimensions,
+    Image,
+    Button
 } from "react-native";
+
+import { RNCamera } from "react-native-camera";
+import { ScrollView } from "react-native-gesture-handler";
         
 export default function DeleteAllCard(props) {
         return ( 

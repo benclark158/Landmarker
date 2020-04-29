@@ -1,17 +1,20 @@
 package com.landmarker3;
 
-import com.facebook.react.BuildConfig;
 import com.landmarker3.generated.BasePackageList;
 
 import org.unimodules.adapters.react.ModuleRegistryAdapter;
 import org.unimodules.adapters.react.ReactModuleRegistryProvider;
+import org.unimodules.core.interfaces.SingletonModule;
 import java.util.Arrays;
 
+import com.reactnativecommunity.cameraroll.CameraRollPackage;
 
 import androidx.multidex.MultiDexApplication;
 import android.content.Context;
 import com.facebook.react.PackageList;
 import com.facebook.react.ReactApplication;
+import com.reactnativecommunity.webview.RNCWebViewPackage;
+import org.reactnative.camera.RNCameraPackage;
 import com.facebook.react.ReactNativeHost;
 import com.facebook.react.ReactPackage;
 import com.facebook.soloader.SoLoader;

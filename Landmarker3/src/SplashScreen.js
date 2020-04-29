@@ -6,6 +6,7 @@ import {
     Image,
   } from 'react-native';
 
+import { StackActions } from '@react-navigation/native';
 import RNLocation from "react-native-location";
 
 class SplashScreen extends React.Component{
