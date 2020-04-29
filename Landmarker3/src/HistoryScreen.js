@@ -21,6 +21,7 @@ import { ScrollView } from "react-native-gesture-handler";
 import * as SQLite from 'expo-sqlite';
 
 const db = SQLite.openDatabase("db.db");
+var RNFS = require('react-native-fs');
 
 class HistoryScreen extends React.Component {
     constructor(props) {
@@ -80,8 +81,56 @@ class HistoryScreen extends React.Component {
             },{ 
                 text: "Yes, delete it all", 
                 onPress: () => {
+                    console.log("delete all");
                     db.transaction(
                         tx => {
+                            tx.executeSql("SELECT * FROM 'places';", [], (_, result) => {
+                                var rows = result.rows;
+            
+                                for(var i = 0; i < rows.length; i++) {
+                                    var uri = rows._array[i]['uri'];
+
+                                    RNFS.exists(uri)
+                                    .then( (result) => {
+                                        //console.log("file exists: ", result);
+                                
+                                        if(result){
+                                        return RNFS.unlink(uri)
+                                            .then(() => {
+                                                //console.log('FILE DELETED');
+                                            })
+                                            // `unlink` will throw an error, if the item to unlink does not exist
+                                            .catch((err) => {
+                                                console.log(err.message);
+                                            });
+                                        }
+                                
+                                    })
+                                    .catch((err) => {
+                                        console.log(err.message);
+                                    }); 
+
+                                }
+
+                            },
+                            (_, err) => {
+                                console.log(err);
+                            });
+                                
+                            tx.executeSql("DELETE FROM 'places';", [], (_, success) => {
+                                this.setState({
+                                    history: [],
+                                });
+                            },
+                            (_, err) => {
+                                console.log(err);
+                            });
+
+                        },
+                        null,
+                        null
+                        
+                        /*tx => {
                             tx.executeSql("DELETE FROM 'places';", [], (_, success) => {
                                     this.setState({
                                         history: [],
@@ -96,7 +145,7 @@ class HistoryScreen extends React.Component {
                             //);
                         },
                         null,
-                        null
+                        null*/
                     );
                 },
             }],
