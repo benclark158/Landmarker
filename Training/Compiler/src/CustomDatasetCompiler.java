@@ -1,3 +1,6 @@
+import Helpers.HelperFunctions;
+import Helpers.Tuple;
+
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -10,13 +13,15 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class CustomDatasetCompiler {
 
-    public CustomDatasetCompiler(){
+    public static final String OUTPUT_FILE_NAME = "uonTrainingTest.csv";
+    public static final String DATASET_LOCATION = "..\\TrainingData\\UoNDataset\\";
 
+    public void compileCustomDatasetFromFolders() throws IOException {
+        this.compileCustomDatasetFromFolders(OUTPUT_FILE_NAME, DATASET_LOCATION);
     }
 
-    public void start() throws IOException {
+    public void compileCustomDatasetFromFolders(String outputFilename, String datasetLocation) throws IOException {
         Random random = new Random();
-        String datasetLocation = "..\\TrainingData\\UoNDataset\\";
 
         //gets list of all landmarks in given dir
         List<String> landmarks = new ArrayList<>();
@@ -55,7 +60,7 @@ public class CustomDatasetCompiler {
             });
         }
 
-        FileWriter writer = new FileWriter("uonTrainingTest.csv", true);
+        FileWriter writer = new FileWriter(outputFilename, true);
         writer.write("landmarkID,url,actual_latitude,actual_longitude,noise_lat,noise_long\r\n");
         for(Tuple<String, String> t : landmarkImgPair){
             String landmark = t.a;
@@ -68,7 +73,7 @@ public class CustomDatasetCompiler {
             float latitude = originalLatLong.a;
             float longitude = originalLatLong.b;
 
-            Tuple<Float, Float> latlong = this.addNoiceToLatLong(latitude, longitude, random);
+            Tuple<Float, Float> latlong = HelperFunctions.addNoiseToLatLong(latitude, longitude, random);
             float nLat = latlong.a;
             float nLong = latlong.b;
 
@@ -76,21 +81,5 @@ public class CustomDatasetCompiler {
             writer.write(line);
         }
         writer.close();
-    }
-
-    public Tuple<Float, Float> addNoiceToLatLong(float latitude, float longitude, Random random){
-
-        float latm = (random.nextFloat() * 200.0f) - 100.0f;
-        float longm = (random.nextFloat() * 200.0f) - 100.0f;
-
-        float earth = 6378.137f;  //radius of the earth in kilometer
-        double pi = Math.PI;
-        double m = (1.0f / ((2.0f * pi / 360.0f) * earth)) / 1000.0f;  //1 meter in degree
-
-        float new_latitude = (float) (latitude + (latm * m));
-
-        float new_longitude = (float) (longitude + (longm * m) / Math.cos(latitude * (pi / 180)));
-
-        return new Tuple<>(new_latitude, new_longitude);
     }
 }

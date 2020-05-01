@@ -6,37 +6,14 @@
  * @flow
  */
 
-import React from 'react';
-
-import {
-  SafeAreaView,
-  StyleSheet,
-  ScrollView,
-  View,
-  Text,
-  StatusBar,
-  Button,
-} from 'react-native';
-
-import {
-  Header,
-  LearnMoreLinks,
-  Colors,
-  DebugInstructions,
-  ReloadInstructions,
-} from 'react-native/Libraries/NewAppScreen';
-
-import CameraScreen from './src/CameraScreen';
+ import CameraScreen from './src/CameraScreen';
 import SplashScreen from './src/SplashScreen';
 import HistoryScreen from './src/HistoryScreen';
 import MapScreen from './src/MapScreen';
 
-import { fadeOut } from 'react-navigation-transitions';
-
 import {createAppContainer} from 'react-navigation';
 import {
   createStackNavigator,
-  TransitionPresets
 } from 'react-navigation-stack';
 
 const MainNavigator = createStackNavigator({

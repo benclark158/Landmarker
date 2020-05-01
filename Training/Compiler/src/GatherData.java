@@ -1,3 +1,5 @@
+import Helpers.Tuple;
+
 import java.io.*;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -5,7 +7,12 @@ import java.util.HashMap;
 
 public class GatherData {
 
-    public void run() throws IOException {
+    /**
+     * This is mainly used to generate a complete csv containing the data needed for the hard coded
+     * data values within the app. This may not be required for future versions of the app.
+     * @throws IOException
+     */
+    public void gatherDataFromIDs() throws IOException {
 
         HashMap<Integer, Integer> mapping = new HashMap<>();
 
@@ -33,6 +40,7 @@ public class GatherData {
         HashMap<Integer, Tuple<String, String>> names = this.getNames(mapping);
         HashMap<Integer, Tuple<Float, Float>> gps = this.getGPS(mapping);
 
+        //trent building and portland building do not exist in wikipedia database
         names.put(999056, new Tuple<>("", "Trent Building"));
         names.put(999057, new Tuple<>("", "Portland Building"));
 

@@ -124,6 +124,10 @@ def enableHermes = project.ext.react.get("enableHermes", false);
 android {
     compileSdkVersion rootProject.ext.compileSdkVersion
 
+    sourceSets {
+        test { java.srcDirs = ['src/test/java'] }
+    }
+
     aaptOptions {
         noCompress "tflite"
         noCompress "lite"
@@ -188,6 +192,11 @@ android {
     }
 }
 
+repositories {
+    jcenter()
+    mavenCentral()
+}
+
 dependencies {
     addUnimodulesDependencies()
     implementation project(':react-native-webview')
@@ -205,6 +214,8 @@ dependencies {
     implementation 'com.google.android.gms:play-services-maps:17.0.0'
     implementation 'com.google.maps.android:android-maps-utils:0.5+'
 
+    androidTestImplementation 'org.junit.jupiter:junit-jupiter-api:5.2.0'
+    androidTestImplementation 'junit:junit:4.12'
 
     if (enableHermes) {
         def hermesPath = "../../node_modules/hermes-engine/android/";
