@@ -60,4 +60,12 @@ public class Tuple<A, B> {
         }
         return false;
     }
+
+    @Override
+    public String toString() {
+        return "Tuple{" +
+                "a=" + a +
+                ", b=" + b +
+                '}';
+    }
 }

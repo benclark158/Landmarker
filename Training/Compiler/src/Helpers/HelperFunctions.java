@@ -26,6 +26,26 @@ public class HelperFunctions {
 
         float new_longitude = (float) (longitude + (longm * m) / Math.cos(latitude * (pi / 180)));
 
+        if(latitude == 90 || latitude == -90){
+            new_longitude = 2.0f * latitude;
+        }
+
+        if(new_longitude > 180.0f){
+            new_longitude -= 360.0f;
+        } else if(new_longitude < -180.0){
+            new_longitude += 360;
+        }
+
+        if(new_latitude > 90.0){
+            new_latitude = 90.0f - (new_latitude - 90.0f);
+            new_longitude = new_longitude * -1;
+        } else if(new_latitude < -90.0){
+            new_latitude = 90 + (new_latitude + 90.0f);
+            new_longitude = new_longitude * -1;
+        }
+
+        new_longitude = Math.max(new_longitude, 0.0001f / 4.0f);
+
         return new Tuple<>(new_latitude, new_longitude);
     }
 
@@ -66,7 +86,6 @@ public class HelperFunctions {
 
         try {
 
-
             URL url = new URL(strURL);
             inputStream = url.openStream();
             outputStream = new FileOutputStream(location);
@@ -77,7 +96,6 @@ public class HelperFunctions {
             while ((length = inputStream.read(buffer)) != -1) {
                 outputStream.write(buffer, 0, length);
             }
-
 
             inputStream.close();
             outputStream.close();
@@ -90,7 +108,8 @@ public class HelperFunctions {
 
         } catch (IOException e) {
             System.out.println("IOException :- " + e.getMessage());
-
+        } catch (NullPointerException e){
+            System.out.println("NullPointerException :- " + e.getMessage());
         }
     }
 
