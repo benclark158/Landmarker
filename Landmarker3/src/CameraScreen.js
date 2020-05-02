@@ -10,7 +10,8 @@ import {
     View,
     Dimensions,
     BackHandler,
-    NativeModules
+    NativeModules,
+    Linking
 } from "react-native";
 
 import RNLocation from "react-native-location";
@@ -79,6 +80,17 @@ class CameraScreen extends React.Component {
         var cameraView = this.renderCamera();
 
         var screen = <>
+        <View style={styles.topContainer}>
+            <View style={styles.leftContainer}>
+                <TouchableOpacity
+                    style={styles.topButton}
+                    onPress={() => this.openGithubIssues()}>
+                    <Icon name="ios-warning" size={40} color="rgba(255, 255, 255, 0.8)"
+                        style={{alignSelf: "center"}}
+                    />
+                </TouchableOpacity>
+            </View>
+        </View>
         <View style={styles.buttonContainer}>
             <View style={styles.sideBContainer}>
                 <TouchableOpacity
@@ -159,6 +171,17 @@ class CameraScreen extends React.Component {
         //<Image source={this.state.imagePath} /> <- what is this for?
 
         return [cameraView, screen];
+    }
+
+    openGithubIssues(){
+        var url = "https://github.com/benclark158/Landmarker-Issues/issues/new";
+        Linking.canOpenURL(url).then(supported => {
+            if (supported) {
+                Linking.openURL(url);
+            } else {
+                console.log("Don't know how to open URI: " + url);
+            }
+          });
     }
 
     handleNavigationChange = newNavState => {
@@ -495,7 +518,7 @@ const styles = StyleSheet.create({
         bottom: 0
     },
     mainBContainer: {
-        flex: 4
+        flex: 4,
     },
     sideBContainer: {
         flex: 1,
@@ -518,6 +541,39 @@ const styles = StyleSheet.create({
         borderWidth: 0,
         bottom: 0,
         right: 0
+    },
+    topContainer: {
+        position: "absolute",
+        left: 0,
+        right: 0,
+        top: 0,
+        display: "flex",
+        flex: 0,
+        zIndex: 5,
+        height: "90%",
+        flexDirection: "row",
+        alignItems: "center",
+        position: "absolute",
+        alignSelf: "flex-end",
+        height: "10%"
+    },
+    topButton: {
+        height: 40,
+        width: 40,
+        maxWidth: 40,
+        maxWidth: 40,
+        margin: 10,
+        flex: 1,
+        borderColor: "white",
+        borderWidth: 0,
+        top: 0,
+        right: 0
+    },
+    leftContainer: {
+        right: 0,
+        top: 0,
+        width: "100%",
+        alignItems: "flex-end",
     }
 });
 

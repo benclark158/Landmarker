@@ -11,6 +11,7 @@ import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Random;
 
@@ -81,13 +82,19 @@ class HelperFunctionsTest {
 
     @Test
     void getUKPlaces() throws Exception {
+        //Cannot be tested if file does not exist!
+
         try{
             HelperFunctions.getUKPlaces(null);
         } catch (Exception e){
-            e.printStackTrace();
-            fail();
+            if(!(e instanceof FileNotFoundException)) {
+                fail();
+            }
         }
-        assertNotNull(HelperFunctions.getUKPlaces(null));
+
+        try {
+            assertNotNull(HelperFunctions.getUKPlaces(null));
+        } catch(FileNotFoundException e){}
     }
 
     @Test

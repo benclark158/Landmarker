@@ -50,15 +50,15 @@ def makeTheNetwork():
     print("Saving model")
     time.sleep(1)
 
-    tfjs.converters.save_keras_model(model, "E:\\")
+    #tfjs.converters.save_keras_model(model, "E:\\")
 
     model.save('saved_model\imgGPS') 
     #model.save('model.h5') 
    # tfjs.converters.save_keras_model(model, "/")
-    #converter = tf.lite.TFLiteConverter.from_keras_model(model_trained)
-    #converter.optimizations = [tf.lite.Optimize.DEFAULT]
-    #tflite_quant_model = converter.convert()
-    #open("converted_model.tflite", "wb").write(tflite_quant_model)
+    converter = tf.lite.TFLiteConverter.from_keras_model(model_trained)
+    converter.optimizations = [tf.lite.Optimize.DEFAULT]
+    tflite_quant_model = converter.convert()
+    open("converted_model.tflite", "wb").write(tflite_quant_model)
 
   time.sleep(1)
   print("====================")
