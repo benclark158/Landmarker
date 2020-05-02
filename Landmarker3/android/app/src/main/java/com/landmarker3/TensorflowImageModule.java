@@ -71,6 +71,17 @@ public class TensorflowImageModule extends ReactContextBaseJavaModule {
         return "TensorflowImage";
     }
 
+    /**
+     *
+     *
+     * @param model
+     * @param path
+     * @param latitude
+     * @param longitude
+     * @param accuracy
+     * @param errorCallback
+     * @param successCallback
+     */
     @ReactMethod
     public void classify(String model, String path, float latitude, float longitude, float accuracy, Callback errorCallback, Callback successCallback) {
         try {
@@ -166,6 +177,11 @@ public class TensorflowImageModule extends ReactContextBaseJavaModule {
     @ReactMethod
     public void getInfo(String landmark, Callback success, Callback err){
         try{
+            if(landmark.equals("")){
+                throw new IllegalArgumentException("Landmark cannot be empty");
+            } else if(!this.labels.contains(landmark)){
+                throw new IllegalArgumentException("\'" + landmark + "\' is not a recognised landmark");
+            }
 
             landmark = landmark.replace(" ", "_");
 
@@ -198,7 +214,7 @@ public class TensorflowImageModule extends ReactContextBaseJavaModule {
         }
     }
 
-    private String getInfo(String outputName) {
+    public String getInfo(String outputName) {
         String str = Values.getInfo().get(outputName);
 
         if(str == null){
@@ -207,7 +223,7 @@ public class TensorflowImageModule extends ReactContextBaseJavaModule {
         return str;
     }
 
-    private boolean additional(String outputName) {
+    public boolean additional(String outputName) {
         Object val = Values.getUnavailableWebsites().get(outputName);
         if(val == null){
             return true;
@@ -219,7 +235,11 @@ public class TensorflowImageModule extends ReactContextBaseJavaModule {
         return false;
     }
 
-    private Map<String, Float> getDistances(LatLng currentPos, float accuracy){
+    public Map<String, Float> getDistances(LatLng currentPos, float accuracy){
+        if(accuracy < 0){
+            throw new IllegalArgumentException("Accuracy must be greater than 0");
+        }
+
         HashMap<String, Float> distanceMap = new HashMap<>();
 
         for(String name : this.gps.keySet()){
@@ -232,19 +252,7 @@ public class TensorflowImageModule extends ReactContextBaseJavaModule {
         return distanceMap; //this.sortByComparator(distanceMap, true);
     }
 
-    private List<String> pickClosest(LatLng currentPos, float accuracy, int amount) {
-        Map<String, Float> sorted = this.getDistances(currentPos, accuracy);
-
-        List<String> topX = new LinkedList<>();
-
-        for(int i = 0; i < Math.min(sorted.keySet().size(), amount); i++){
-            String name = (String) sorted.keySet().toArray()[i];
-            topX.add(name);
-        }
-        return topX;
-    }
-
-    private Map<String, Float> sortByComparator(Map<String, Float> unsortMap, final boolean order) {
+    public Map<String, Float> sortByComparator(Map<String, Float> unsortMap, final boolean order) {
         List<Map.Entry<String, Float>> list = new LinkedList<Map.Entry<String, Float>>(unsortMap.entrySet());
 
         // Sorting the list based on values
@@ -268,7 +276,7 @@ public class TensorflowImageModule extends ReactContextBaseJavaModule {
     }
 
     /** Memory-map the model file in Assets. */
-    private MappedByteBuffer loadModelFile(Context cxt, String model) throws IOException {
+    public MappedByteBuffer loadModelFile(Context cxt, String model) throws IOException {
         AssetFileDescriptor fileDescriptor = cxt.getAssets().openFd(model);
         FileInputStream inputStream = new FileInputStream(fileDescriptor.getFileDescriptor());
         FileChannel fileChannel = inputStream.getChannel();
@@ -277,7 +285,7 @@ public class TensorflowImageModule extends ReactContextBaseJavaModule {
         return fileChannel.map(FileChannel.MapMode.READ_ONLY, startOffset, declaredLength);
     }
 
-    private TensorImage loadTensor(Bitmap bitmap){
+    public TensorImage loadTensor(Bitmap bitmap){
         this.ti.load(bitmap);
 
         ImageProcessor imageProcessor = new ImageProcessor.Builder()
@@ -286,15 +294,15 @@ public class TensorflowImageModule extends ReactContextBaseJavaModule {
         return imageProcessor.process(this.ti);
     }
 
-    private TensorOperator getPreProcessNormalisationOp() {
+    public TensorOperator getPreProcessNormalisationOp() {
         return new NormalizeOp(127.5f, 127.5f);
     }
 
-    private TensorOperator getPostProcessNormaliseOp() {
+    public TensorOperator getPostProcessNormaliseOp() {
         return new NormalizeOp(0.0f, 1.0f);
     }
 
-    private Bitmap loadImage(String path) throws IOException {
+    public Bitmap loadImage(String path) throws IOException {
 
         URLConnection conn = new URL(path).openConnection();
         conn.connect();
@@ -305,7 +313,11 @@ public class TensorflowImageModule extends ReactContextBaseJavaModule {
         return bm;
     }
 
-    private Bitmap getResizedBitmap(Bitmap bm, int newWidth, int newHeight) {
+    public Bitmap getResizedBitmap(Bitmap bm, int newWidth, int newHeight) {
+        if(newWidth <= 0 || newHeight <= 0){
+            throw new IllegalArgumentException("newWidth and newHeight must be greater than 0");
+        }
+
         int width = bm.getWidth();
         int height = bm.getHeight();
         float scaleWidth = ((float) newWidth) / width;
