@@ -158,7 +158,7 @@ android {
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1
         versionName "1.0"
-        missingDimensionStrategy 'react-native-camera', 'general'
+        //missingDimensionStrategy 'react-native-camera', 'general'
         multiDexEnabled true
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -177,6 +177,14 @@ android {
             keyAlias 'androiddebugkey'
             keyPassword 'android'
         }
+        release {
+            if (project.hasProperty('MYAPP_UPLOAD_STORE_FILE')) {
+                storeFile file(MYAPP_UPLOAD_STORE_FILE)
+                storePassword MYAPP_UPLOAD_STORE_PASSWORD
+                keyAlias MYAPP_UPLOAD_KEY_ALIAS
+                keyPassword MYAPP_UPLOAD_KEY_PASSWORD
+            }
+        }
     }
     buildTypes {
         debug {
@@ -185,7 +193,7 @@ android {
         release {
             // Caution! In production, you need to generate your own keystore file.
             // see https://facebook.github.io/react-native/docs/signed-apk-android.
-            signingConfig signingConfigs.debug
+            signingConfig signingConfigs.release
             minifyEnabled enableProguardInReleaseBuilds
             proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
         }
@@ -214,7 +222,7 @@ repositories {
 dependencies {
     addUnimodulesDependencies()
     implementation project(':react-native-webview')
-    implementation project(':react-native-camera')
+    //implementation project(':react-native-camera')
     implementation fileTree(dir: "libs", include: ["*.jar"])
     implementation "com.facebook.react:react-native:0.20.1"  // From node_modules
 
@@ -224,7 +232,7 @@ dependencies {
 
     implementation 'com.android.support:multidex:1.0.3'
     
-    implementation project(':@react-native-community_cameraroll')
+    //implementation project(':@react-native-community_cameraroll')
     implementation 'com.google.android.gms:play-services-maps:17.0.0'
     implementation 'com.google.maps.android:android-maps-utils:0.5'
 

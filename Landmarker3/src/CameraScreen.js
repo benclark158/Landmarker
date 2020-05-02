@@ -237,7 +237,7 @@ class CameraScreen extends React.Component {
             //longitude = -0.078393;
             //uri = "https://upload.wikimedia.org/wikipedia/commons/thumb/6/69/A_Tower-h%C3%ADd_%28The_Tower_Bridge%29_-_panoramio.jpg/1024px-A_Tower-h%C3%ADd_%28The_Tower_Bridge%29_-_panoramio.jpg"
 
-            await TensorflowImage.classify("final_model_v1.tflite", uri, latitude, longitude, accuracy,
+            await TensorflowImage.classify("imgGPS-30-v3.tflite", uri, latitude, longitude, accuracy,
                 (err) => {console.log(err)},
                 (name, info, hasAdd, probs) => {
                     this.setState({
