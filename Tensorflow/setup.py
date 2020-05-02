@@ -13,31 +13,34 @@ import numpy as np
 from tensorflow.keras import datasets, layers, models
 import tensorflowjs as tfjs
 
+#does everything for the network
 def makeTheNetwork():
+
+  #determines which opertations to cary out
   doBuild = True
   doTrain = True
   doSave = True
 
   model = []
 
-  numClasses = 84#55#15130
+  #number of classes in this model
+  numClasses = 84
 
   if(doBuild):
     time.sleep(1)
     print("Making model")
     time.sleep(1)
 
+    #builds the model
     model = build.makeModel(numClasses)
 
   if(doTrain):
 
+    #Does training of the network
+
     time.sleep(1)
     print("Training model")
     time.sleep(1)
-
-
-    #for i in range(0,5):
-      #model = training.training(model=model, numClasses=numClasses, index=999)
 
     model = training.training(model=model, numClasses=numClasses, noEpochs=30)
 
@@ -50,11 +53,13 @@ def makeTheNetwork():
     print("Saving model")
     time.sleep(1)
 
+    #save as js model
     #tfjs.converters.save_keras_model(model, "E:\\")
 
+    #save as .pb model
     model.save('saved_model\imgGPS') 
-    #model.save('model.h5') 
-   # tfjs.converters.save_keras_model(model, "/")
+
+    #Save as tflite model
     converter = tf.lite.TFLiteConverter.from_keras_model(model_trained)
     converter.optimizations = [tf.lite.Optimize.DEFAULT]
     tflite_quant_model = converter.convert()
@@ -65,7 +70,5 @@ def makeTheNetwork():
   print("     FINSIHED")
   print("====================")
 
-#try:
+
 makeTheNetwork()
-#except Exception as e:
-#  wb.open("https://cineor.com/benclark/email.php?i=" + str(e) + '<h3>Traceback</h3>' + urllib.parse.quote(traceback.format_exc(), safe=''))
