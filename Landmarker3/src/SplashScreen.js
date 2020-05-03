@@ -10,16 +10,10 @@ import RNLocation from "react-native-location";
 
 class SplashScreen extends React.Component{
 
+    /**
+    * Renders the splash screen 
+    */
     render(){
-        const viewStyles = [
-            styles.container, {backgroundColor: 'red'}
-        ];
-        const textStyles = {
-            color: 'white',
-            fontSize: 40,
-            fontWeight: 'bold'
-        };
-
         return (
             <>
                 <View style={{ width: "100%", height: "100%", flex: 1, alignItems: "center", justifyContent: "center", backgroundColor: '#afe9f0', }}
@@ -33,12 +27,9 @@ class SplashScreen extends React.Component{
         );
     }
 
-    waitFor1Sec = async() => {
-        return new Promise((resolve) =>
-          setTimeout(() => { resolve('result') }, 2000)
-        );
-    }
-
+    /**
+     * when component mounts get permissions for location data
+     */
     async componentDidMount() {
         RNLocation.requestPermission({
             ios: 'whenInUse', // or 'always'
@@ -52,16 +43,13 @@ class SplashScreen extends React.Component{
               }
             }
         });
-        // Preload data from an external API
-        // Preload data using AsyncStorage
-        const data = await this.waitFor1Sec();
-      
-        if (data !== null) {
-            //this.props.navigation.navigate('CameraScreen')
-        }
+
       }
 }
 
+/**
+ * Style sheet
+ */
 const styles = StyleSheet.create({
     container: {
       flex: 1,

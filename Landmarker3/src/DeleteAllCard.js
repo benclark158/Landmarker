@@ -24,6 +24,11 @@ import {
 import { RNCamera } from "react-native-camera";
 import { ScrollView } from "react-native-gesture-handler";
         
+/**
+ * View for th delete all button
+ * deleteAll : function
+ * @param {*} props 
+ */
 export default function DeleteAllCard(props) {
         return ( 
         <>
@@ -38,11 +43,10 @@ export default function DeleteAllCard(props) {
     );
 }
 
+/**
+ * style sheet for the view
+ */
 const styles = StyleSheet.create({
-
-      cardContent: {
-        
-      },
 
       container: {
         flex: 1,
@@ -71,7 +75,6 @@ const styles = StyleSheet.create({
         top: 0,
         left: 95,
         color: "#fff",
-        position: "absolute",
         fontWeight: 'bold',
         fontSize: 20,
         fontFamily: "roboto-700"

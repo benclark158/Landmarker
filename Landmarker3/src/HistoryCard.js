@@ -12,20 +12,21 @@ import InformationView from "./InformationView.js";
 
 import {
     StyleSheet,
-    Animated,
     Text,
     TouchableOpacity,
     View,
-    Dimensions,
     Image,
-    Button
 } from "react-native";
 
-import { RNCamera } from "react-native-camera";
-import { ScrollView } from "react-native-gesture-handler";
-        
-var isHidden = true;
-
+/**
+ * Component for showing history items
+ * imgUrl : url of image
+ * title : title of image
+ * info : info about image
+ * td : date and time of photo
+ * gps: gps coords of photo 
+ * @param {*} props 
+ */
 export default function HistoryCard(props) {
         return ( 
         <>
@@ -47,6 +48,9 @@ export default function HistoryCard(props) {
     )
 }
 
+/**
+ * style sheet for view
+ */
 const styles = StyleSheet.create({
 
       cardContent: {

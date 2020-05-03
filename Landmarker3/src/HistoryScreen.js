@@ -24,6 +24,11 @@ const db = SQLite.openDatabase("db.db");
 var RNFS = require('react-native-fs');
 
 class HistoryScreen extends React.Component {
+
+    /**
+     * init of state for component
+     * @param {*} props 
+     */
     constructor(props) {
         super(props);
         this.state = {
@@ -32,6 +37,9 @@ class HistoryScreen extends React.Component {
         };
     }
 
+    /**
+     * renders the views 
+     */
     render() {
         var card = <>
             <ScrollView>
@@ -70,7 +78,14 @@ class HistoryScreen extends React.Component {
         }
     }
 
+    /**
+     * called when delete all button is pressed
+     * Confirms to delete all
+     * Deletes all images
+     * then clears database
+     */
     deleteAll = () => {
+        //confirmation of button press
         Alert.alert(
             "Delete Entire History",
             "Are you sure you want to delete your entire search history? (This cannot be undone)",
@@ -81,12 +96,13 @@ class HistoryScreen extends React.Component {
             },{ 
                 text: "Yes, delete it all", 
                 onPress: () => {
-                    console.log("delete all");
+                    //do delete all
                     db.transaction(
                         tx => {
                             tx.executeSql("SELECT * FROM 'places';", [], (_, result) => {
                                 var rows = result.rows;
             
+                                //deletes all images
                                 for(var i = 0; i < rows.length; i++) {
                                     var uri = rows._array[i]['uri'];
 
@@ -117,6 +133,7 @@ class HistoryScreen extends React.Component {
                                 console.log(err);
                             });
                                 
+                            //deletes all data in database
                             tx.executeSql("DELETE FROM 'places';", [], (_, success) => {
                                 this.setState({
                                     history: [],
@@ -129,23 +146,6 @@ class HistoryScreen extends React.Component {
                         },
                         null,
                         null
-                        
-                        /*tx => {
-                            tx.executeSql("DELETE FROM 'places';", [], (_, success) => {
-                                    this.setState({
-                                        history: [],
-                                    });
-                                },
-                                (_, err) => {
-                                    console.log(err);
-                                });
-                            
-                            //tx.executeSql("select * from items", [], (_, { rows }) =>
-                            //    console.log(JSON.stringify(rows))
-                            //);
-                        },
-                        null,
-                        null*/
                     );
                 },
             }],
@@ -153,24 +153,32 @@ class HistoryScreen extends React.Component {
           );
     }
 
+    /**
+     * called when the component mounts to screen
+     */
     async componentDidMount(){
         
+        //loads data from database to table
         db.transaction(
             tx => {
                 tx.executeSql("select * from 'places';", [], (_, result) => {
                     var rows = result.rows;
+                    
+                    //adds rows to state
                     this.setState({
                         points: rows,
                     });
 
                     var mk = [];
 
+                    //iterates over rows
                     for(var i = 0; i < rows.length; i++) {
                         var obj = rows._array[i];
                     
                         var info = obj['desc'];
                         var length = 28;
 
+                        //formats info correctly
                         if(info == null){
                             info = "";
                         } else {
@@ -179,6 +187,8 @@ class HistoryScreen extends React.Component {
                             }
                         }
 
+
+                        //format name to remove underscore
                         var nm = obj['name'];
 
                         if(nm != null){
@@ -187,6 +197,7 @@ class HistoryScreen extends React.Component {
                             nm = "";
                         }
 
+                        //add to temp value
                         mk[i] = {
                             position: String(obj['latitude']).substring(0, 6) +
                                 ", " + 
@@ -199,6 +210,7 @@ class HistoryScreen extends React.Component {
                         
                     }
 
+                    //add to states
                     this.setState({
                         history: mk,
                         loaded: true,

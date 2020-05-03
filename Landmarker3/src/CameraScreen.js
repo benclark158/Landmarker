@@ -28,6 +28,11 @@ var TensorflowImage = NativeModules.TensorflowImage;
 const db = SQLite.openDatabase("db.db");
 
 class CameraScreen extends React.Component {
+
+    /**
+     * builds initial state of component
+     * @param {*} props 
+     */
     constructor(props) {
         super(props);
         this.state = {
@@ -52,6 +57,9 @@ class CameraScreen extends React.Component {
         };
     }
 
+    /**
+     * function for rendering the camera based on permissions and if the screen is active
+     */
     renderCamera = () => {
         const { hasCamPermission } = this.state
         const isActive = this.props.navigation.isFocused()
@@ -76,6 +84,10 @@ class CameraScreen extends React.Component {
         }
     }
 
+    /**
+     * Overrided method
+     * renders the screen
+     */
     render() {
         var cameraView = this.renderCamera();
 
@@ -168,11 +180,13 @@ class CameraScreen extends React.Component {
             </Animated.View>
         </>
 
-        //<Image source={this.state.imagePath} /> <- what is this for?
-
+        //combines the camera view and screen views
         return [cameraView, screen];
     }
 
+    /**
+     * Opens github issues page
+     */
     openGithubIssues(){
         var url = "https://github.com/benclark158/Landmarker-Issues/issues/new";
         Linking.canOpenURL(url).then(supported => {
@@ -184,6 +198,10 @@ class CameraScreen extends React.Component {
           });
     }
 
+    /**
+     * Handles injecting of javascript into a newly loaded website
+     * This ensures that the webview is kept at the correct size.
+     */
     handleNavigationChange = newNavState => {
         var runFirst = `
             setInterval(function(){
@@ -195,6 +213,13 @@ class CameraScreen extends React.Component {
         this.webref.injectJavaScript(runFirst);
     }
 
+    /**
+     * Gets the current location of the phone
+     * Takes the photo
+     * Runs it through tensorflow for results
+     * Displays the results
+     * Saves result to database
+     */
     takePicture = async () => {
         
         this.getDataTime();
@@ -203,6 +228,7 @@ class CameraScreen extends React.Component {
 
         //take photo
 
+        //resets params
         this.setState({
             result: {
                 title: "",
@@ -213,8 +239,10 @@ class CameraScreen extends React.Component {
 
         if (this.camera) {
 
+            //shows loading screen
             this.toggleSubview();
 
+            //takes photo
             this.camera.resumePreview();
             var options = { quality: 1, base64: false, pauseAfterCapture: true};
             var data = await this.camera.takePictureAsync(options);
@@ -226,8 +254,7 @@ class CameraScreen extends React.Component {
                 imageUri: uri,
             })
 
-            //console.log(this.state.location);
-
+            //get location
             var latitude = this.state.location.latitude;
             var longitude = this.state.location.longitude;
             var accuracy = this.state.location.accuracy;
@@ -237,9 +264,12 @@ class CameraScreen extends React.Component {
             //longitude = -0.078393;
             //uri = "https://upload.wikimedia.org/wikipedia/commons/thumb/6/69/A_Tower-h%C3%ADd_%28The_Tower_Bridge%29_-_panoramio.jpg/1024px-A_Tower-h%C3%ADd_%28The_Tower_Bridge%29_-_panoramio.jpg"
 
+            //begins classification
             await TensorflowImage.classify("imgGPS-30-v3.tflite", uri, latitude, longitude, accuracy,
                 (err) => {console.log(err)},
                 (name, info, hasAdd, probs) => {
+
+                    //saves results into state
                     this.setState({
                         result: {
                             title: name,
@@ -251,6 +281,7 @@ class CameraScreen extends React.Component {
                     var vals = [name, uri, info, 
                         this.state.dateTime, latitude, longitude];
 
+                    //adds values to database
                     db.transaction(
                         tx => {
                             tx.executeSql("insert into 'places' (" + 
@@ -273,6 +304,9 @@ class CameraScreen extends React.Component {
         }
     }
 
+    /**
+     * Gets the current time and data, adds to state as string
+     */
     getDataTime() {
         var that = this;
         var date = new Date().getDate(); //Current Date
@@ -288,17 +322,21 @@ class CameraScreen extends React.Component {
             });
     }
 
+    /**
+     * Opens or closes the animated results view
+     */
     toggleSubview() {
         var hiddenVal = !this.state.isHidden;
         this.setState({
             isHidden: hiddenVal,
         });
 
+        //calcs sizes
         var size = Dimensions.get("window").height;
         var innerSize = size * 0.7;
         var outerSize = size * 0.3;
         
-
+        //sets sizes
         this.setState({
             buttonText: !hiddenVal ? "Show Subview" : "Hide Subview",
             viewHeight: size,
@@ -324,22 +362,24 @@ class CameraScreen extends React.Component {
         }).start();
     }
 
+    /**
+     * Called qwhen the component mounts
+     */
     async componentDidMount() {
+        //checks permissions
         const { status } = await Permissions.askAsync(Permissions.CAMERA, Permissions.CAMERA_ROLL);
-        //const { camRollStatus } = await Permissions.askAsync(Permissions.CAMERA_ROLL);
         this.setState({ 
             hasCamPermission: status === 'granted',
-            //hasRollPermission: camRollStatus === 'granted',
         });
 
-
+        //checks when this screen is in focus
         this.focusListener = this.props.navigation.addListener('focus', () => {
-            //console.log("focus");
             if(this.state.isHidden){
                 this.camera.pausePreview();
             }
         });
         
+        //registers location updater
         this.getLocationUpdates();
 
         //register back handler!
@@ -348,6 +388,7 @@ class CameraScreen extends React.Component {
             this.backAction
         );
         
+        //creates table if it doesnt exist
         db.transaction(tx => {
             tx.executeSql(
               "CREATE TABLE IF NOT EXISTS 'places' (" + 
@@ -369,8 +410,12 @@ class CameraScreen extends React.Component {
         });
     }
 
+    /**
+     * Creates location update listener
+     */
     getLocationUpdates(){
 
+        //configures location service
         RNLocation.configure({
             distanceFilter: 50, // Meters
             desiredAccuracy: {
@@ -391,6 +436,7 @@ class CameraScreen extends React.Component {
             showsBackgroundLocationIndicator: false,
         });
         
+        //subscribes to locations
         this.locationUpdater = RNLocation.subscribeToLocationUpdates(locations => {
             this.setState({
                 location:{
@@ -402,18 +448,27 @@ class CameraScreen extends React.Component {
         });
     }
 
+    /**
+     * called when the screen unmounts
+     */
     componentWillUnmount(){
+        //removes all subscribers
         this.backHandler.remove();
         this.focusListener.remove();
         this.locationUpdater();
     }
 
+    /**
+     * Actions for when the user presses the back button
+     */
     backAction = () => {
         if(this.props.navigation.isFocused()){
             if(this.state.isHidden){
+                //if not showing subview
                 BackHandler.exitApp();
                 return true;
             } else {
+                //remove subview
                 this.toggleSubview();
                 return true;
             }
@@ -422,6 +477,10 @@ class CameraScreen extends React.Component {
         }
     }
 
+    /**
+     * Called when the rotate camera button is pressed
+     * Rotates the camera using states
+     */
     rotateCamera = () => {
         //console.log(this.state.cameraType);
         if (this.state.cameraType == Camera.Constants.Type.front) {
@@ -436,6 +495,9 @@ class CameraScreen extends React.Component {
     };
 }
 
+/**
+ * Style sheet for views
+ */
 const styles = StyleSheet.create({
     camera: {
         flex: 1,

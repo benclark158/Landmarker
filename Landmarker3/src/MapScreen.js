@@ -32,6 +32,10 @@ var TensorflowImage = NativeModules.TensorflowImage;
 const db = SQLite.openDatabase("db.db");
 
 class MapScreen extends React.Component {
+    /**
+     * State initialiser
+     * @param {*} props 
+     */
     constructor(props) {
         super(props);
         this.state = {
@@ -54,6 +58,9 @@ class MapScreen extends React.Component {
         };
     }
 
+    /**
+     * Renders the map screen
+     */
     render() {
         var screen = <>
             <View style={styles.container}>
@@ -150,6 +157,9 @@ class MapScreen extends React.Component {
         return screen;
     }
 
+    /**
+     * Handles clicking links in the webview
+     */
     handleNavigationChange = newNavState => {
         var runFirst = `
             setInterval(function(){
@@ -161,13 +171,19 @@ class MapScreen extends React.Component {
         this.webref.injectJavaScript(runFirst);
     }
 
+    /**
+     * When a bubble from map marker is pressed
+     * @param {*} name 
+     */
     calloutPress(name){
         var id = name.replace(/ /g, "_");
 
         this.toggleSubview();
 
+        //gets information for the clicked landmark 
         TensorflowImage.getInfo(id, (name, inf, additional, succ)=>{
             
+            //adds to state
             this.setState({
                 result: {
                     title: name.replace(/_/g, " "),
@@ -181,17 +197,22 @@ class MapScreen extends React.Component {
         })        
     }
 
+    /**
+     * Opens/closes subview with animation
+     */
     toggleSubview() {
+        //hides/view animation
         var hiddenVal = !this.state.isHidden;
         this.setState({
             isHidden: hiddenVal,
         });
 
+        //size calulations
         var size = Dimensions.get("window").height;
         var innerSize = size * 0.7;
         var outerSize = size * 0.3;
         
-
+        //sets sizes
         this.setState({
             buttonText: !hiddenVal ? "Show Subview" : "Hide Subview",
             viewHeight: size,
@@ -216,27 +237,41 @@ class MapScreen extends React.Component {
         }).start();
     }
 
+    /**
+     * Called when component mounts
+     */
     componentWillUnmount(){
-        //console.log("unmount");
+        //removes subscribe
         this._unsubscribe.remove();
     }
 
+    /**
+     * Called when the component opens
+     */
     componentDidMount(){
         
+        //adds focus listener
         this._unsubscribe = this.props.navigation.addListener('focus', () => {
             this.updatePoints();
         });
 
+        //adds points to map
         this.updatePoints();
 
+        //adds image to state
         this.setState({
             img: require('./imgs/icon_small.png'),
         })
     }
 
+    /**
+     * Updates the points on the amp 
+     */
     updatePoints(){
+        //calls databse
         db.transaction(
             tx => {
+                //selects all data from past places captured
                 tx.executeSql("select * from 'places';", [], (_, result) => {
                     var rows = result.rows;
                     this.setState({
@@ -244,7 +279,8 @@ class MapScreen extends React.Component {
                     });
 
                     var mk = [];
-
+                    
+                    //iterates over rows, adds each point to temp variable array
                     for(var i = 0; i < rows.length; i++) {
                         var obj = rows._array[i];
                     
@@ -258,6 +294,7 @@ class MapScreen extends React.Component {
                         
                     }
 
+                    //adds temp variable array to state
                     this.setState({
                         markers: mk
                     });
@@ -270,13 +307,15 @@ class MapScreen extends React.Component {
             null
         );
 
+        // gets all possible landmarks and adds them to screen
         TensorflowImage.getLandmarkGPS((str) => {
             var json = JSON.parse(str);
             var mk = [];
 
+            //adds points to screen
             for(var i = 0; i < json.length; i++){
                 var obj = json[i];
-
+                
                 mk[i] = {
                     name: obj['name'].replace(/_/g, " "),
                     coord: {
@@ -297,6 +336,9 @@ class MapScreen extends React.Component {
     }
 }
 
+/**
+ * Style sheet for the view
+ */
 const styles = StyleSheet.create({
     container: {
         flex: 1,

@@ -11,22 +11,30 @@ import AutoHeightWebView from 'react-native-autoheight-webview'
 import WebView from 'react-native-webview'
 import { ScrollView } from 'react-native-gesture-handler';
 
+/**
+ * Create information view
+ * @param {*} props 
+ */
 export default function InformationView(props) {
 
+    //temp website code
     var code = "<body style=\"width:100%\"><p>Hello, this is some information.</p></iframe></body>";
-    //props.title
 
+    //format name and prep waiting text
     var name = props.title.replace(/_/g, " ");
     var pleaseWaitTxt = "Please hold the camera still while we take the photo";
 
+    //replace wait test if it is set
     if(props.pw != null && props.pw != ""){
         pleaseWaitTxt = props.pw;
     }
 
+    //dont show if the view is hidden
     if(props.isHidden){
         return <></>
     }
 
+    //if has webstite and info
     if(props.hasAdditional && props.info != ""){
         return (
             <>  
@@ -64,6 +72,7 @@ export default function InformationView(props) {
             </>
         );
     } else if(!props.hasAdditional && props.info != ""){
+        //doesnt have website but has info
         return (
             <>  
             <ScrollView style={styles.container}>
@@ -77,6 +86,7 @@ export default function InformationView(props) {
             </>
         );
     } else if(props.hasAdditional && props.info == ""){
+        //only has website
         return (
             <>  
             <ScrollView style={styles.container}>
@@ -107,6 +117,7 @@ export default function InformationView(props) {
             </>
         );
     } else {
+        //loading screen
         return (
             <>  
             <View style={styles.container}>
@@ -123,6 +134,9 @@ export default function InformationView(props) {
     }
 }
 
+/**
+ * Style sheet
+ */
 const styles = StyleSheet.create({
     container: {
       flex: 1,
