@@ -8,9 +8,15 @@ The purpose of this app is to allow users to take photos of a given UK landmark.
 
 The app will recognise any (dependant on training) building on a UoN campus (UK based). This will be used to help new and international students as well as visitors and open day guests to find their way around university, even if they cannot see the signs, or are approaching the building from an unknown angle.
 
+## Publicity
+
+While this is a public repository, this may not continue to be public. Hence, please do NOT submit issues to this repo. Please follow the instructions bellow
+
 ## Reporting Issues
 
-If you are having issues with the application, then please add them to the issues page at the top of this page. Alternately, clicking the button in the top left of the camera screen will open a new image for you.
+If you are having issues with the application, then please add them to the issues repository. Alternately, clicking the button in the top left of the camera screen will open a new issue for you.
+
+The issue repository is available at: https://github.com/benclark158/Landmarker-Issues/issues
 
 ## Structure
 
