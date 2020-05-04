@@ -16,10 +16,20 @@ public class CustomDatasetCompiler {
     public static final String OUTPUT_FILE_NAME = "uonTrainingTest.csv";
     public static final String DATASET_LOCATION = "..\\TrainingData\\UoNDataset\\";
 
+    /**
+     * Compiles images from custom dataset
+     * @throws IOException
+     */
     public void compileCustomDatasetFromFolders() throws IOException {
         this.compileCustomDatasetFromFolders(OUTPUT_FILE_NAME, DATASET_LOCATION);
     }
 
+    /**
+     * Compiles images from custom dataset
+     * @param outputFilename
+     * @param datasetLocation
+     * @throws IOException
+     */
     public void compileCustomDatasetFromFolders(String outputFilename, String datasetLocation) throws IOException {
         Random random = new Random();
 
@@ -28,6 +38,7 @@ public class CustomDatasetCompiler {
         HashMap<String, Integer> landmarkNumbers = new HashMap<>();
         AtomicInteger i = new AtomicInteger();
 
+        //loads files and their paths
         File datasetFile = new File(datasetLocation);
         Files.list(datasetFile.toPath()).forEach(path -> {
                     //System.out.println(path.getFileName().toString());
@@ -42,12 +53,14 @@ public class CustomDatasetCompiler {
         List<Tuple<String, String>> landmarkImgPair = new ArrayList<>();
         HashMap<String, Tuple<Float, Float>> landmarkLocation = new HashMap<>();
 
+        //iterates over all files found
         for (String landmark : landmarks) {
             String landmarkImgLoc = datasetLocation + landmark;
             File imgFile = new File(landmarkImgLoc);
             Files.list(imgFile.toPath()).forEach(path -> {
                 //System.out.println(path.getFileName().toString());
                 String filename = path.getFileName().toString();
+                //if text file, parse as gps data
                 if(filename.endsWith(".txt")){
                     String gps = filename.replace(".txt", "");
                     String[] coords = gps.split("#");
@@ -60,6 +73,7 @@ public class CustomDatasetCompiler {
             });
         }
 
+        //output to file in specified format
         FileWriter writer = new FileWriter(outputFilename, true);
         writer.write("landmarkID,url,actual_latitude,actual_longitude,noise_lat,noise_long\r\n");
         for(Tuple<String, String> t : landmarkImgPair){
@@ -73,10 +87,12 @@ public class CustomDatasetCompiler {
             float latitude = originalLatLong.a;
             float longitude = originalLatLong.b;
 
+            //add noise
             Tuple<Float, Float> latlong = HelperFunctions.addNoiseToLatLong(latitude, longitude, random);
             float nLat = latlong.a;
             float nLong = latlong.b;
 
+            //write to file
             String line = landmarkNumber + "," + imgURL + "," + latitude + "," + longitude + "," + nLat + "," + nLong + "\r\n";
             writer.write(line);
         }

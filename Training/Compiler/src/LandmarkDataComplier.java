@@ -15,12 +15,24 @@ import java.util.regex.Pattern;
 
 public class LandmarkDataComplier {
 
+    /**
+     * Easy use function for below code
+     * @throws Exception
+     */
     public void run() throws Exception {
-        //List<Helpers.Tuple<Integer, String>> listNames = new ArrayList<>();
+        //gets landmarks in uk
         HashMap<Integer, QuadTuple<String, Float, Float, Boolean>> ukMap = HelperFunctions.getUKPlaces(null);
+
+        //gets images in uk
+        //formatted with noise ready for training
         this.outputImageData(ukMap);
     }
 
+    /**
+     * Gets images that are in the uk from the complete 4million image dataset
+     * @param ukMap
+     * @throws Exception
+     */
     public void outputImageData(HashMap<Integer, QuadTuple<String, Float, Float, Boolean>> ukMap) throws Exception {
         String strDir = Values.DOWNLOAD_LOCATION + "photos\\";
 

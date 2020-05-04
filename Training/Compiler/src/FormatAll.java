@@ -5,6 +5,10 @@ import Helpers.Values;
 
 public class FormatAll {
 
+    /**
+     * Formats the images by resizing them to a given size
+     * @throws Exception
+     */
     public void run() throws Exception {
 
         ICallback callback = new ICallback() {
@@ -14,6 +18,7 @@ public class FormatAll {
                 String[] data = line.split(",");
                 String url = data[1];
 
+                //does resizing
                 HelperFunctions.resizeImg(url, Values.IMAGE_WIDTH, Values.IMAGE_HEIGHT);
             }
         };

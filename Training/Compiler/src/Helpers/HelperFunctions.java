@@ -13,6 +13,13 @@ import java.util.regex.Pattern;
 
 public class HelperFunctions {
 
+    /**
+     * Adds random noise to longitude and latitude
+     * @param latitude
+     * @param longitude
+     * @param random
+     * @return
+     */
     public static Tuple<Float, Float> addNoiseToLatLong(float latitude, float longitude, Random random){
 
         float latm = (random.nextFloat() * 200.0f) - 100.0f;
@@ -26,6 +33,7 @@ public class HelperFunctions {
 
         float new_longitude = (float) (longitude + (longm * m) / Math.cos(latitude * (pi / 180)));
 
+        //checks bounds
         if(latitude == 90 || latitude == -90){
             new_longitude = 2.0f * latitude;
         }

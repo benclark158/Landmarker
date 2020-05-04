@@ -18,15 +18,20 @@ public class ImageDownloader {
 
     private int failedImages, downloaded, skipped;
 
+    /**
+     * Collects all of the images
+     * @throws Exception
+     */
     public void collectImages() throws Exception {
-
-
         //reads list of uk places
-
         this.doPostRun(HelperFunctions.getUKPlaces(null));
 
     }
 
+    /**
+     * Downloads images from the internet
+     * @param ukMap
+     */
     private void doPostRun(HashMap<Integer, QuadTuple<String, Float, Float, Boolean>> ukMap) {
         System.out.println("Downloading Images...");
 
@@ -41,14 +46,17 @@ public class ImageDownloader {
             public void invoke(Object... args) throws Exception {
                 String line = String.valueOf(args[0]);
 
+                //reads line from file
                 Pattern p = Pattern.compile("([0-9a-z]+),([\"])*([a-zA-Z0-9:/_,.()!%\\-']+)([\"])*,([0-9]+)(\\r\\n)*");
                 Matcher m = p.matcher(line);
 
+                //checks it matches the specified pattern
                 if (m.matches()) {
                     String id = m.group(1);
                     String url = m.group(3);
                     int landmarkID = Integer.parseInt(m.group(5));
 
+                    //start threaded download process
                     QuadTuple<String, Float, Float, Boolean> quad = ukMap.get(landmarkID);
                     if (quad != null && quad.d) {
                         Thread th = new Thread(new Runnable() {
@@ -62,6 +70,7 @@ public class ImageDownloader {
 
                         ArrayList<Thread> removeList = new ArrayList<>();
 
+                        //keep list of alive threads only
                         for (Thread thread : threadList) {
                             if (!th.isAlive()) {
                                 removeList.add(th);
@@ -73,6 +82,8 @@ public class ImageDownloader {
                             }
                         }
 
+                        //if more than 50 threads running
+                        // wait for entire list to finish
                         if (threadList.size() > 50) {
                             for (Thread thread : threadList) {
                                 try {
@@ -87,6 +98,7 @@ public class ImageDownloader {
             }
         };
 
+        // wait for all threads to finish
         ICallback post = new ICallback() {
             @Override
             public void invoke(Object... args) throws Exception {
@@ -114,6 +126,12 @@ public class ImageDownloader {
 
     }
 
+    /**
+     * Downloads an image and resizes it
+     * @param strURL
+     * @param id
+     * @param landmarkID
+     */
     public void downloadAndResize(String strURL, String id, int landmarkID) {
         File f = new File(Values.DOWNLOAD_LOCATION + "photos/" + landmarkID + "/");
 
@@ -131,8 +149,10 @@ public class ImageDownloader {
             return;
         }
 
+        //image download
         HelperFunctions.downloadImage(strURL, location);
 
+        //resizes image
         try {
             HelperFunctions.resizeImg(
                     location,

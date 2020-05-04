@@ -9,8 +9,13 @@ import java.util.List;
 
 public class Counter {
 
-    public void outputTop100Landmarks() throws Exception {
+    /**
+     * Outputs landmarks with more than 250 images per class
+     * @throws Exception
+     */
+    public void outputPopularLandmarks() throws Exception {
         //get amount of all landmarks
+        //outputs landmarks with more than 250 images
 
         HashMap<Integer, Integer> counter = new HashMap<>();
         List<Tuple<Integer, String>> lines = new ArrayList<>();
@@ -25,6 +30,7 @@ public class Counter {
 
             int currentCount = 0;
 
+            //count images per class
             if(counter.containsKey(landmarkID)){
                 currentCount = counter.get(landmarkID);
                 counter.remove(landmarkID);
@@ -38,8 +44,9 @@ public class Counter {
         ICallback post = args -> {
             List<Integer> landmarksOver100 = new ArrayList<>();
 
+            //save landmarks with >250 images per class
             for(Integer id : counter.keySet()){
-                if(counter.get(id) >= 500){
+                if(counter.get(id) >= 250){
                     landmarksOver100.add(id);
                 }
             }
@@ -47,6 +54,7 @@ public class Counter {
             FileWriter formatted = new FileWriter("limitedData.csv", true);
             formatted.write("landmarkID,url,actual_latitude,actual_longitude,noise_lat,noise_long\r\n");
 
+            //write to file
             for(Tuple<Integer, String> t : lines){
                 if(landmarksOver100.contains(t.a)) {
                     formatted.write(t.b + "\r\n");

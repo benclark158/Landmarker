@@ -11,11 +11,21 @@ import java.util.List;
 
 public class MapLandmarks {
 
+    /**
+     * Easy access function
+     * @throws Exception
+     */
     public void run() throws Exception {
         Tuple<List<String>, List<String>> t = this.getLines();
         this.outputLines(t.a, t.b);
     }
 
+    /**
+     * Reads files and maps landmark ids to smaller range of values
+     * ie no jumps greater than 1 between any consecutive ids
+     * @return
+     * @throws Exception
+     */
     protected Tuple<List<String>, List<String>> getLines() throws Exception {
         List<String> newLines = new ArrayList<>();
         List<String> mapingLines = new ArrayList<>();
@@ -53,6 +63,13 @@ public class MapLandmarks {
         return new Tuple<>(newLines, mapingLines);
     }
 
+    /**
+     * Prints lines to output files
+     * Also prints mapping csv
+     * @param lines
+     * @param mappingLines
+     * @throws IOException
+     */
     protected void outputLines(List<String> lines, List<String> mappingLines) throws IOException {
         FileWriter formatted = new FileWriter("lim-formattedData.csv", true);
         formatted.write("landmarkID,url,actual_latitude,actual_longitude,noise_lat,noise_long\r\n");

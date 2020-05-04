@@ -31,7 +31,10 @@ public class ProgramMain {
             System.out.println("https://s3.amazonaws.com/google-landmark/train/images_" + str + ".tar");
         }*/
 
-        //return;
+        //This does the different components
+        //DO NOT RUN LIKE THIS
+        //Comment out which programs you do not want to run
+
         ProgramMain main = new ProgramMain();
         main.organiseFiles();
 
@@ -42,7 +45,7 @@ public class ProgramMain {
         comp.compileCustomDatasetFromFolders();
 
         Counter count = new Counter();
-        count.outputTop100Landmarks();
+        count.outputPopularLandmarks();
 
         MapLandmarks map = new MapLandmarks();
         map.run();
@@ -57,6 +60,10 @@ public class ProgramMain {
         data.run();
     }
 
+    /**
+     * Reads landmark list and gets list of all places within the UK
+     * Uses scraper to get information
+     */
     private void organiseFiles() {
         try {
             FileWriter errorWriter = new FileWriter("error.csv", true);
@@ -72,8 +79,7 @@ public class ProgramMain {
 
             Collections.shuffle(readLines);
 
-            //new Scraper(0, null).doScraping(readLines, "blank");
-
+            //splits data into smaller lists
             List<List<String>> smallerLists = Lists.partition(readLines, size);
 
             Thread[] threads = new Thread[smallerLists.size()];
@@ -81,6 +87,7 @@ public class ProgramMain {
 
             int i = 0;
 
+            //run multiple threads/scrapers
             for (List<String> threadLists : smallerLists) {
                 threads[i] = new Thread(runners[i] = new Scraper(i, threadLists));
 
@@ -101,6 +108,9 @@ public class ProgramMain {
     }
 
 
+    /**
+     * Scraper - scapes websites for information
+     */
     static class Scraper implements Runnable {
 
         Tuple<HashMap, List<String>> result;
@@ -115,12 +125,18 @@ public class ProgramMain {
         @Override
         public void run() {
             try {
+                //does work
                 this.result = doScraping(this.threadLists, "thread-" + this.id);
             } catch (Exception e){
                 e.printStackTrace();
             }
         }
 
+        /**
+         * Unused
+         * @return
+         * @throws Exception
+         */
         public Tuple<HashMap, List<String>> getResult() throws Exception {
             if(this.result == null){
                 throw new Exception("Result is null for thread: " + this.id);
@@ -128,6 +144,13 @@ public class ProgramMain {
             return this.result;
         }
 
+        /**
+         * Scapes the wikipedia page for valid information
+         * @param lines
+         * @param thread
+         * @return
+         * @throws IOException
+         */
         public Tuple<HashMap, List<String>> doScraping(List<String> lines, String thread) throws IOException {
             int errors = 0;
             float progress = 0.0f;
@@ -139,7 +162,7 @@ public class ProgramMain {
             FileWriter writer = new FileWriter("thead" + thread + ".csv", true);
             writer.write("landmarkID,url,latitude,longitude,isUK\r\n");
 
-            //for (String line : ProgressBar.wrap(lines, "TaskName")) {
+            //iterate over lines
             for (int i = 0; i < lineSize; i++) {
                 if (progress % 10 == 0) {
                     //System.out.println("thread: " + thread + "\t\tid: " + landmarkID + "/" + lineSize + "\t\terrors: " + errors);
@@ -147,6 +170,7 @@ public class ProgramMain {
                 }
 
                 try {
+                    //scape and output the data
                     String line = lines.get(i);
                     Tuple<Integer, QuadTuple> tuple = this.singleScrape(line);
                     hashMap.put(tuple.a, tuple.b);
@@ -160,6 +184,7 @@ public class ProgramMain {
                     }
 
                 } catch (Exception ex) {
+                    //check errors and process accordingly
                     if (!(ex instanceof NullPointerException)) {
                         if (ex instanceof HttpStatusException) {
                             if (((HttpStatusException) ex).getStatusCode() == 429) {
@@ -174,28 +199,39 @@ public class ProgramMain {
             return new Tuple(hashMap, errorList);
         }
 
+        /**
+         * Scrapes a single website
+         * @param line
+         * @return
+         * @throws IOException
+         */
         private Tuple<Integer, QuadTuple> singleScrape(String line) throws IOException {
             String[] parts = line.split(",", 2);
             int landmarkID = Integer.parseInt(parts[0]);
             String url = parts[1];
 
+            //open website
             Document doc = null;
             doc = Jsoup.connect(url.replace("\"", "").replace("http://", "https://")).get();
 
+            //read html
             Element infoBox = doc.getElementById("wdinfobox");
             Elements externalText = infoBox.getElementsByClass("external text");
 
+            //name of page
             String name = doc.getElementById("firstHeading").html();
 
             float latitude = 0, longitude = 0;
             boolean set = false;
 
+            //check all elements for the gps coords
             for (Element el : externalText) {
                 if (el.attr("href").contains("geohack")) {
                     String[] info = el.attr("href").split("&");
 
                     for (String str : info) {
                         if (str.contains("params=")) {
+                            //format and read float gps values
                             String longLat = str.replace("params=", "").replace("_E_globe:Earth_", "");
                             String[] breakup = longLat.split("_N_");
                             latitude = Float.parseFloat(breakup[0]);
@@ -210,7 +246,7 @@ public class ProgramMain {
                     }
                 }
             }
-            //String csvStr = landmarkID + "," + url + "," + latitude + "," + longitude + "\r\n";
+            //output data as quad tuple
             QuadTuple<String, Float, Float, Boolean> quad = new QuadTuple<>(url, latitude, longitude, HelperFunctions.inUK(latitude, longitude));
             return new Tuple(landmarkID, quad);
         }

@@ -1,3 +1,5 @@
+import Helpers.FileIO;
+import Helpers.ICallback;
 import Helpers.Tuple;
 
 import java.io.*;
@@ -12,30 +14,21 @@ public class GatherData {
      * data values within the app. This may not be required for future versions of the app.
      * @throws IOException
      */
-    public void gatherDataFromIDs() throws IOException {
+    public void gatherDataFromIDs() throws Exception {
 
         HashMap<Integer, Integer> mapping = new HashMap<>();
 
-        File f = new File("E:\\Dissertation\\Landmarker\\Training\\Compiler\\idMapping.csv");    //creates a new file instance
-        FileReader fr = new FileReader(f);   //reads the file
-        BufferedReader br = new BufferedReader(fr);  //creates a buffering character input stream
-        String line = "";
-
-        int i = 0;
-
-        while ((line = br.readLine()) != null) {
-            if (line.contains("oldID")) {
-                continue;
-            } else if (i % 10000 == 0) {
-                DateTimeFormatter dtf = DateTimeFormatter.ofPattern("HH:mm:ss");
-                LocalDateTime now = LocalDateTime.now();
-                System.out.println(dtf.format(now) + "\t\tProgress: " + i);
+        ICallback callback = new ICallback() {
+            @Override
+            public void invoke(Object... args) throws Exception {
+                String line = String.valueOf(args[0]);
+                String[] parts = line.split(",");
+                mapping.put(Integer.parseInt(parts[0]), Integer.parseInt(parts[1]));
             }
-            i++;
-            String[] parts = line.split(",");
+        };
 
-            mapping.put(Integer.parseInt(parts[0]), Integer.parseInt(parts[1]));
-        }
+        FileIO.readFileWithCallBack("E:\\Dissertation\\Landmarker\\Training\\Compiler\\idMapping.csv", callback);
+
 
         HashMap<Integer, Tuple<String, String>> names = this.getNames(mapping);
         HashMap<Integer, Tuple<Float, Float>> gps = this.getGPS(mapping);
@@ -56,81 +49,83 @@ public class GatherData {
         formatted.close();
     }
 
-    private HashMap<Integer, Tuple<Float, Float>> getGPS(HashMap<Integer, Integer> mapping) throws IOException {
+    /**
+     * gets gps data for each landmark id
+     * @param mapping
+     * @return
+     * @throws IOException
+     */
+    private HashMap<Integer, Tuple<Float, Float>> getGPS(HashMap<Integer, Integer> mapping) throws Exception {
         HashMap<Integer, Tuple<Float, Float>> gps = new HashMap<>();
 
-        File f = new File("E:\\Dissertation\\Landmarker\\Training\\ComponentData\\completeDataset.csv");    //creates a new file instance
-        FileReader fr = new FileReader(f);   //reads the file
-        BufferedReader br = new BufferedReader(fr);  //creates a buffering character input stream
-        String line = "";
+        ICallback callback = new ICallback() {
+            @Override
+            public void invoke(Object... args) throws Exception {
+                String line = String.valueOf(args[0]);
+                String[] parts = line.split(",");
 
-        int i = 0;
+                //bad parse? Shouldnt happen!
+                if(parts.length > 6){
+                    throw new IndexOutOfBoundsException("Something bad?");
+                }
 
-        while ((line = br.readLine()) != null) {
-            if (line.contains("landmarkID")) {
-                continue;
-            } else if (i % 10000 == 0) {
-                DateTimeFormatter dtf = DateTimeFormatter.ofPattern("HH:mm:ss");
-                LocalDateTime now = LocalDateTime.now();
-                System.out.println(dtf.format(now) + "\t\tProgress: " + i);
+                int id = Integer.parseInt(parts[0]);
+                float latitude = Float.parseFloat(parts[2]);
+                float longitude = Float.parseFloat(parts[3]);
+
+                //check valid names
+                if(gps.get(id) == null && mapping.get(id) != null && mapping.get(id) >= 0){
+
+                    //adds data to list
+                    Tuple<Float, Float> t = new Tuple<>(latitude, longitude);
+                    gps.put(id, t);
+                }
             }
-            i++;
-            String[] parts = line.split(",");
+        };
 
-            if(parts.length > 6){
-                throw new IndexOutOfBoundsException("Something bad?");
-            }
+        FileIO.readFileWithCallBack("E:\\Dissertation\\Landmarker\\Training\\ComponentData\\completeDataset.csv", callback);
 
-            int id = Integer.parseInt(parts[0]);
-            float latitude = Float.parseFloat(parts[2]);
-            float longitude = Float.parseFloat(parts[3]);
-
-            if(gps.get(id) == null && mapping.get(id) != null && mapping.get(id) >= 0){
-
-                Tuple<Float, Float> t = new Tuple<>(latitude, longitude);
-                gps.put(id, t);
-            }
-        }
         return gps;
     }
 
-    private HashMap<Integer, Tuple<String, String>> getNames(HashMap<Integer, Integer> mapping) throws IOException {
+    /**
+     * Gets name and url for each place
+     * @param mapping
+     * @return
+     * @throws IOException
+     */
+    private HashMap<Integer, Tuple<String, String>> getNames(HashMap<Integer, Integer> mapping) throws Exception {
         HashMap<Integer, Tuple<String, String>> names = new HashMap<>();
 
-        File f = new File("E:\\Dissertation\\Landmarker\\Training\\ComponentData\\train_label_to_category.csv");    //creates a new file instance
-        FileReader fr = new FileReader(f);   //reads the file
-        BufferedReader br = new BufferedReader(fr);  //creates a buffering character input stream
-        String line = "";
+        ICallback callback = new ICallback() {
+            @Override
+            public void invoke(Object... args) throws Exception {
+                String line = String.valueOf(args[0]);
+                String[] parts = line.split(",", 2);
 
-        int i = 0;
+                //checks 2 parts per line
+                if(parts.length > 2){
+                    System.out.println("OVER 2");
+                    throw new IndexOutOfBoundsException("Something bad?");
+                }
 
-        while ((line = br.readLine()) != null) {
-            if (line.contains("landmark_id")) {
-                continue;
-            } else if (i % 10000 == 0) {
-                DateTimeFormatter dtf = DateTimeFormatter.ofPattern("HH:mm:ss");
-                LocalDateTime now = LocalDateTime.now();
-                System.out.println(dtf.format(now) + "\t\tProgress: " + i);
+                //parse ints
+                int id = Integer.parseInt(parts[0]);
+                String url = parts[1];
+
+                //check values are valid for this entry
+                if(names.get(id) == null && mapping.get(id) != null && mapping.get(id) >= 0){
+                    String name = url.split("Category:")[1];
+
+                    //adds name
+                    Tuple<String, String> t = new Tuple<>(url, name);
+                    names.put(id, t);
+                }
             }
-            i++;
+        };
 
-            String[] parts = line.split(",", 2);
+        FileIO.readFileWithCallBack("E:\\Dissertation\\Landmarker\\Training\\ComponentData\\train_label_to_category.csv", callback);
 
-            if(parts.length > 2){
-                System.out.println("OVER 2");
-                throw new IndexOutOfBoundsException("Something bad?");
-            }
-
-            int id = Integer.parseInt(parts[0]);
-            String url = parts[1];
-
-            if(names.get(id) == null && mapping.get(id) != null && mapping.get(id) >= 0){
-                String name = url.split("Category:")[1];
-
-                Tuple<String, String> t = new Tuple<>(url, name);
-                names.put(id, t);
-            }
-        }
         return names;
     }
 }
